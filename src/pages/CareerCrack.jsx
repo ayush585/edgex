@@ -249,90 +249,98 @@ function CareerCrack() {
   if (!userId) return <LoginModal onLogin={setUserId} />;
 
   return (
-    <div className={`${darkMode ? "dark" : ""}`}>
-      <div className="flex min-h-screen bg-gradient-to-br from-[#c7d2fe] via-[#e0c3fc] to-[#f9f9f9] dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-white font-[Poppins] transition-all">
-        {/* Sidebar */}
-        <div className="w-64 bg-white/40 dark:bg-gray-800/60 backdrop-blur-lg border-r border-white/20 p-4 space-y-4">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">💬 Your Chats</h2>
-            <button onClick={() => setDarkMode(!darkMode)} className="p-1 rounded hover:bg-white/20">
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between px-2 py-1 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg mb-3">
-            <span className="text-xs font-semibold text-gray-800 dark:text-white">🧠 Mode:</span>
-            <button
-              onClick={() => setUseGroq(!useGroq)}
-              className="text-xs bg-white dark:bg-gray-700 px-3 py-1 rounded-md font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-            >
-              {useGroq ? "🌐 Groq" : "💻 Local"}
-            </button>
-          </div>
-
-          <button
-            onClick={() => {
-              setMessages([]);
-              setSelectedChatId(null);
-            }}
-            className="flex items-center gap-2 text-sm bg-indigo-600 text-white w-full py-2 px-3 rounded-md hover:bg-indigo-700"
-          >
-            <PlusCircle size={16} /> New Chat
-          </button>
-
-          {history.map((chat) => (
-            <div
-              key={chat.id}
-              className={`p-2 rounded-md cursor-pointer hover:bg-white/20 ${selectedChatId === chat.id ? "bg-white/30" : ""
-                }`}
-              onClick={() => loadChat(chat.id)}
-            >
-              <input
-                className="bg-transparent font-medium text-sm w-full"
-                defaultValue={chat.title}
-                onBlur={(e) => renameChat(chat.id, e.target.value)}
-              />
-              {chat.createdAt?.seconds && (
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  🕒 {new Date(chat.createdAt.seconds * 1000).toLocaleString()}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Main Chat Area */}
-        <div className="flex-1 p-6">
-          <h1 className="text-3xl font-bold mb-4 text-center">🎓 CareerCrack</h1>
-
-          <div className="h-96 overflow-y-auto space-y-4 p-4 bg-white/30 dark:bg-gray-800 rounded-2xl border border-white/20">
-            {messages.map((msg, i) => (
-              <ChatBubble key={i} role={msg.role} text={msg.text} />
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-
-          <div className="mt-4 flex items-center bg-white/60 dark:bg-gray-700 border border-gray-300 rounded-xl px-3">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Your strengths, fav subjects, hobbies?"
-              className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-            />
-            <button onClick={handleSend} className="hover:text-indigo-600 transition">
-              <SendHorizonal className="w-5 h-5" />
-            </button>
-          </div>
-
-          <button
-            onClick={exportChatToPDF}
-            className="mt-6 flex items-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
-          >
-            📄 Export Chat <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">PDF</span>
-          </button>
-        </div>
+     <div className={`${darkMode ? "dark" : ""}`}>
+  <div className="flex min-h-screen bg-gradient-to-br from-[#ffe0ec] via-[#f8bbd0] to-[#f3d1f4] dark:from-[#2a004f] dark:via-[#3c1361] dark:to-[#1b0032] text-gray-900 dark:text-white font-[Poppins] transition-all duration-500 ease-in-out">
+    
+    {/* Sidebar */}
+    <div className="w-64 bg-white/60 dark:bg-[#30104d]/60 backdrop-blur-xl border-r border-white/20 p-4 space-y-4 shadow-xl rounded-tr-3xl rounded-br-3xl transition-all duration-500">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold">💬 Your Chats</h2>
+        <button onClick={() => setDarkMode(!darkMode)} className="p-1 rounded-full hover:bg-white/20 transition-all">
+          {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
       </div>
+
+      <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-pink-100 to-purple-200 dark:from-purple-800 dark:to-fuchsia-900 rounded-xl">
+        <span className="text-xs font-bold text-gray-800 dark:text-white">🧠 AI Mode</span>
+        <button
+          onClick={() => setUseGroq(!useGroq)}
+          className="text-xs bg-white/70 dark:bg-purple-700 px-3 py-1 rounded-full font-bold hover:bg-white dark:hover:bg-purple-600 transition shadow"
+        >
+          {useGroq ? "🌐 Groq" : "💻 Local"}
+        </button>
+      </div>
+
+      <button
+        onClick={() => {
+          setMessages([]);
+          setSelectedChatId(null);
+        }}
+        className="flex items-center gap-2 text-sm bg-gradient-to-r from-pink-500 via-purple-500 to-fuchsia-500 text-white w-full py-2 px-3 rounded-full hover:scale-105 shadow-xl transition-all duration-300"
+      >
+        <PlusCircle size={16} /> New Chat
+      </button>
+
+      {history.map((chat) => (
+        <div
+          key={chat.id}
+          className={`p-2 rounded-xl cursor-pointer hover:scale-[1.02] hover:bg-white/40 dark:hover:bg-purple-800 transition-all shadow-sm ${
+            selectedChatId === chat.id ? "bg-white/50 dark:bg-purple-700" : ""
+          }`}
+          onClick={() => loadChat(chat.id)}
+        >
+          <input
+            className="bg-transparent font-medium text-sm w-full"
+            defaultValue={chat.title}
+            onBlur={(e) => renameChat(chat.id, e.target.value)}
+          />
+          {chat.createdAt?.seconds && (
+            <p className="text-xs text-gray-600 dark:text-gray-300">
+              🕒 {new Date(chat.createdAt.seconds * 1000).toLocaleString()}
+            </p>
+          )}
+        </div>
+      ))}
     </div>
+
+    {/* Main Chat Area */}
+    <div className="flex-1 p-6 animate-fade-in">
+      <div className="flex justify-center items-center mb-6">
+        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-500 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-lg">
+          CareerCrack
+        </h1>
+      </div>
+
+      <div className="h-96 overflow-y-auto space-y-4 p-4 bg-white/70 dark:bg-[#2a004f]/60 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl animate-slide-in-up transition-all">
+        {messages.map((msg, i) => (
+          <ChatBubble key={i} role={msg.role} text={msg.text} />
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="mt-4 flex items-center bg-white/90 dark:bg-purple-700 border border-gray-300 dark:border-purple-600 rounded-full px-4 shadow-xl backdrop-blur-lg">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="💡 Tell me about your goals, hobbies, dreams..."
+          className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-purple-200"
+        />
+        <button onClick={handleSend} className="p-2 hover:scale-110 transition-all text-pink-600 dark:text-pink-300">
+          <SendHorizonal className="w-5 h-5" />
+        </button>
+      </div>
+
+      <button
+        onClick={exportChatToPDF}
+        className="mt-6 flex items-center gap-2 bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-600 text-white px-5 py-3 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+      >
+        📄 Export Chat
+        <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">PDF</span>
+      </button>
+    </div>
+  </div>
+</div>
+
   );
 }
 
