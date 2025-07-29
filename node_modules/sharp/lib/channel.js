@@ -16,7 +16,7 @@ const bool = {
 };
 
 /**
- * Remove alpha channel, if any. This is a no-op if the image does not have an alpha channel.
+ * Remove alpha channels, if any. This is a no-op if the image does not have an alpha channel.
  *
  * See also {@link /api-operation#flatten|flatten}.
  *
@@ -158,6 +158,7 @@ function bandbool (boolOp) {
 
 /**
  * Decorate the Sharp prototype with channel-related functions.
+ * @module Sharp
  * @private
  */
 module.exports = function (Sharp) {

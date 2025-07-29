@@ -9,6 +9,7 @@ export declare class BasePlugin<EventTypes extends BasePluginEvents, Options> ex
     protected wavesurfer?: WaveSurfer;
     protected subscriptions: (() => void)[];
     protected options: Options;
+    private isDestroyed;
     /** Create a plugin instance */
     constructor(options: Options);
     /** Called after this.wavesurfer is available */

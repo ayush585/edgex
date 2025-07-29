@@ -19,7 +19,7 @@ const colourspace = {
 };
 
 /**
- * Tint the image using the provided chroma while preserving the image luminance.
+ * Tint the image using the provided colour.
  * An alpha channel may be present and will be unchanged by the operation.
  *
  * @example
@@ -27,23 +27,21 @@ const colourspace = {
  *   .tint({ r: 255, g: 240, b: 16 })
  *   .toBuffer();
  *
- * @param {string|Object} rgb - parsed by the [color](https://www.npmjs.org/package/color) module to extract chroma values.
+ * @param {string|Object} tint - Parsed by the [color](https://www.npmjs.org/package/color) module.
  * @returns {Sharp}
  * @throws {Error} Invalid parameter
  */
-function tint (rgb) {
-  const colour = color(rgb);
-  this.options.tintA = colour.a();
-  this.options.tintB = colour.b();
+function tint (tint) {
+  this._setBackgroundColourOption('tint', tint);
   return this;
 }
 
 /**
  * Convert to 8-bit greyscale; 256 shades of grey.
  * This is a linear operation. If the input image is in a non-linear colour space such as sRGB, use `gamma()` with `greyscale()` for the best results.
- * By default the output image will be web-friendly sRGB and contain three (identical) color channels.
+ * By default the output image will be web-friendly sRGB and contain three (identical) colour channels.
  * This may be overridden by other sharp operations such as `toColourspace('b-w')`,
- * which will produce an output image containing one color channel.
+ * which will produce an output image containing one colour channel.
  * An alpha channel may be present, and will be unchanged by the operation.
  *
  * @example
@@ -73,8 +71,6 @@ function grayscale (grayscale) {
  * All operations will use this colourspace before converting to the output colourspace,
  * as defined by {@link #tocolourspace|toColourspace}.
  *
- * This feature is experimental and has not yet been fully-tested with all operations.
- *
  * @since 0.29.0
  *
  * @example
@@ -92,7 +88,7 @@ function pipelineColourspace (colourspace) {
   if (!is.string(colourspace)) {
     throw is.invalidParameterError('colourspace', 'string', colourspace);
   }
-  this.options.colourspaceInput = colourspace;
+  this.options.colourspacePipeline = colourspace;
   return this;
 }
 
@@ -139,6 +135,26 @@ function toColorspace (colorspace) {
 }
 
 /**
+ * Create a RGBA colour array from a given value.
+ * @private
+ * @param {string|Object} value
+ * @throws {Error} Invalid value
+ */
+function _getBackgroundColourOption (value) {
+  if (is.object(value) || is.string(value)) {
+    const colour = color(value);
+    return [
+      colour.red(),
+      colour.green(),
+      colour.blue(),
+      Math.round(colour.alpha() * 255)
+    ];
+  } else {
+    throw is.invalidParameterError('background', 'object or string', value);
+  }
+}
+
+/**
  * Update a colour attribute of the this.options Object.
  * @private
  * @param {string} key
@@ -147,22 +163,13 @@ function toColorspace (colorspace) {
  */
 function _setBackgroundColourOption (key, value) {
   if (is.defined(value)) {
-    if (is.object(value) || is.string(value)) {
-      const colour = color(value);
-      this.options[key] = [
-        colour.red(),
-        colour.green(),
-        colour.blue(),
-        Math.round(colour.alpha() * 255)
-      ];
-    } else {
-      throw is.invalidParameterError('background', 'object or string', value);
-    }
+    this.options[key] = _getBackgroundColourOption(value);
   }
 }
 
 /**
  * Decorate the Sharp prototype with colour-related functions.
+ * @module Sharp
  * @private
  */
 module.exports = function (Sharp) {
@@ -176,6 +183,7 @@ module.exports = function (Sharp) {
     toColourspace,
     toColorspace,
     // Private
+    _getBackgroundColourOption,
     _setBackgroundColourOption
   });
   // Class attributes

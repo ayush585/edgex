@@ -334,3 +334,16 @@ exports.forward = function forward(from, to, names, opts = {}) {
 exports.listenerCount = function listenerCount(emitter, name) {
   return emitter.listenerCount(name)
 }
+
+exports.getMaxListeners = function getMaxListeners(emitter) {
+  return emitter.getMaxListeners()
+}
+
+exports.setMaxListeners = function setMaxListeners(n, ...emitters) {
+  if (emitters.length === 0) exports.defaultMaxListeners = n
+  else {
+    for (const emitter of emitters) {
+      emitter.setMaxListeners(n)
+    }
+  }
+}

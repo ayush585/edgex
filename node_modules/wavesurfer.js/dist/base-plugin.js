@@ -5,6 +5,7 @@ export class BasePlugin extends EventEmitter {
     constructor(options) {
         super();
         this.subscriptions = [];
+        this.isDestroyed = false;
         this.options = options;
     }
     /** Called after this.wavesurfer is available */
@@ -13,6 +14,11 @@ export class BasePlugin extends EventEmitter {
     }
     /** Do not call directly, only called by WavesSurfer internally */
     _init(wavesurfer) {
+        // Reset state if plugin was previously destroyed
+        if (this.isDestroyed) {
+            this.subscriptions = [];
+            this.isDestroyed = false;
+        }
         this.wavesurfer = wavesurfer;
         this.onInit();
     }
@@ -20,6 +26,9 @@ export class BasePlugin extends EventEmitter {
     destroy() {
         this.emit('destroy');
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
+        this.subscriptions = [];
+        this.isDestroyed = true;
+        this.wavesurfer = undefined;
     }
 }
 export default BasePlugin;

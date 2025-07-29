@@ -9,6 +9,8 @@
 
 #include "./common.h"
 
+typedef std::vector<std::pair<std::string, std::string>> MetadataComments;
+
 struct MetadataBaton {
   // Input
   sharp::InputDescriptor *input;
@@ -22,7 +24,8 @@ struct MetadataBaton {
   int density;
   std::string chromaSubsampling;
   bool isProgressive;
-  int paletteBitDepth;
+  bool isPalette;
+  int bitsPerSample;
   int pages;
   int pageHeight;
   int loop;
@@ -47,6 +50,7 @@ struct MetadataBaton {
   size_t xmpLength;
   char *tifftagPhotoshop;
   size_t tifftagPhotoshopLength;
+  MetadataComments comments;
   std::string err;
 
   MetadataBaton():
@@ -56,7 +60,8 @@ struct MetadataBaton {
     channels(0),
     density(0),
     isProgressive(false),
-    paletteBitDepth(0),
+    isPalette(false),
+    bitsPerSample(0),
     pages(0),
     pageHeight(0),
     loop(-1),

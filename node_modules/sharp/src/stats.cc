@@ -30,7 +30,7 @@ class StatsWorker : public Napi::AsyncWorker {
 
   void Execute() {
     // Decrement queued task counter
-    g_atomic_int_dec_and_test(&sharp::counterQueue);
+    sharp::counterQueue--;
 
     vips::VImage image;
     sharp::ImageType imageType = sharp::ImageType::UNKNOWN;
@@ -58,9 +58,9 @@ class StatsWorker : public Napi::AsyncWorker {
           baton->channelStats.push_back(cStats);
         }
         // Image is not opaque when alpha layer is present and contains a non-mamixa value
-        if (sharp::HasAlpha(image)) {
+        if (image.has_alpha()) {
           double const minAlpha = static_cast<double>(stats.getpoint(STAT_MIN_INDEX, bands).front());
-          if (minAlpha != sharp::MaximumImageAlpha(image.interpretation())) {
+          if (minAlpha != vips_interpretation_max_alpha(image.interpretation())) {
             baton->isOpaque = false;
           }
         }
@@ -106,7 +106,7 @@ class StatsWorker : public Napi::AsyncWorker {
     // Handle warnings
     std::string warning = sharp::VipsWarningPop();
     while (!warning.empty()) {
-      debuglog.MakeCallback(Receiver().Value(), { Napi::String::New(env, warning) });
+      debuglog.Call(Receiver().Value(), { Napi::String::New(env, warning) });
       warning = sharp::VipsWarningPop();
     }
 
@@ -141,9 +141,9 @@ class StatsWorker : public Napi::AsyncWorker {
       dominant.Set("g", baton->dominantGreen);
       dominant.Set("b", baton->dominantBlue);
       info.Set("dominant", dominant);
-      Callback().MakeCallback(Receiver().Value(), { env.Null(), info });
+      Callback().Call(Receiver().Value(), { env.Null(), info });
     } else {
-      Callback().MakeCallback(Receiver().Value(), { Napi::Error::New(env, sharp::TrimEnd(baton->err)).Value() });
+      Callback().Call(Receiver().Value(), { Napi::Error::New(env, sharp::TrimEnd(baton->err)).Value() });
     }
 
     delete baton->input;
@@ -177,7 +177,7 @@ Napi::Value stats(const Napi::CallbackInfo& info) {
   worker->Queue();
 
   // Increment queued task counter
-  g_atomic_int_inc(&sharp::counterQueue);
+  sharp::counterQueue++;
 
   return info.Env().Undefined();
 }
