@@ -235,79 +235,96 @@ function MoodMirror() {
   if (!userId) return <LoginModal onLogin={(uid) => setUserId(uid)} />;
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-pink-100 via-indigo-100 to-white dark:from-gray-900 dark:to-black font-[Poppins] text-gray-900 dark:text-white">
-      {/* Sidebar */}
-      <div className="w-full md:w-64 bg-white/40 dark:bg-white/10 backdrop-blur-lg border-r border-white/20 p-4 space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">🫀 MoodMirror</h2>
-          <div className="flex gap-2">
-            <button onClick={() => {
-              setMessages([]);
-              setSelectedChatId(null);
-            }} title="New Chat">
-              <PlusCircle size={20} />
-            </button>
-            <button onClick={() => setDarkMode(!darkMode)} title="Toggle Dark Mode">
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
-        </div>
-
-        {history.map((chat) => (
-          <div
-            key={chat.id}
-            className={`p-2 rounded-md cursor-pointer hover:bg-white/20 ${selectedChatId === chat.id ? "bg-white/30" : ""
-              }`}
-            onClick={() => loadChat(chat.id)}
-          >
-            <input
-              className="bg-transparent font-medium text-sm w-full dark:text-white"
-              defaultValue={chat.title}
-              onBlur={(e) => renameChat(chat.id, e.target.value)}
-            />
-            {chat.createdAt?.seconds && (
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                🕒 {new Date(chat.createdAt.seconds * 1000).toLocaleString()}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Main Chat */}
-      <div className="flex-1 p-4 md:p-6">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-center">
-          🫀 MoodMirror: Decode the Vibe
-        </h1>
-
-        <div className="h-[65vh] overflow-y-auto space-y-4 p-4 bg-white/30 dark:bg-white/10 rounded-2xl border border-white/20">
-          {messages.map((msg, i) => (
-            <ChatBubble key={i} role={msg.role} text={msg.text} />
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="mt-4 flex items-center bg-white/60 dark:bg-white/20 border border-gray-300 dark:border-gray-600 rounded-xl px-3">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Paste convo or type what happened..."
-            className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500"
-          />
-          <button onClick={handleSend} className="hover:text-indigo-600 transition dark:text-white">
-            <SendHorizonal className="w-5 h-5" />
-          </button>
-        </div>
-
+   <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-50 dark:from-[#0f1b2e] dark:via-[#1c1a40] dark:to-[#1a0e2e] font-[Poppins] text-gray-900 dark:text-gray-100 transition-all duration-500 ease-in-out">
+  {/* Sidebar */}
+  <div className="w-full md:w-64 bg-white/40 dark:bg-white/5 backdrop-blur-md border-r border-white/20 p-4 space-y-4 shadow-md">
+    <div className="flex justify-between items-center">
+      <h2 className="text-lg font-extrabold bg-gradient-to-r from-indigo-600 via-purple-500 to-blue-400 bg-clip-text text-transparent dark:from-indigo-300 dark:via-purple-300 dark:to-blue-200">
+         MoodMirror
+      </h2>
+      <div className="flex gap-2">
         <button
-          onClick={exportChatToPDF}
-          className="mt-6 flex items-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+          onClick={() => {
+            setMessages([]);
+            setSelectedChatId(null);
+          }}
+          title="New Chat"
+          className="text-indigo-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-blue-200 transition"
         >
-          📄 Export Chat
-          <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">PDF</span>
+          <PlusCircle size={20} />
+        </button>
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          title="Toggle Dark Mode"
+          className="text-indigo-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-blue-200 transition"
+        >
+          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
       </div>
     </div>
+
+    {history.map((chat) => (
+      <div
+        key={chat.id}
+        className={`p-2 rounded-md cursor-pointer hover:bg-white/40 dark:hover:bg-white/10 transition ${
+          selectedChatId === chat.id ? "bg-white/60 dark:bg-white/10" : ""
+        }`}
+        onClick={() => loadChat(chat.id)}
+      >
+        <input
+          className="bg-transparent font-medium text-sm w-full dark:text-white focus:outline-none"
+          defaultValue={chat.title}
+          onBlur={(e) => renameChat(chat.id, e.target.value)}
+        />
+        {chat.createdAt?.seconds && (
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            🕒 {new Date(chat.createdAt.seconds * 1000).toLocaleString()}
+          </p>
+        )}
+      </div>
+    ))}
+  </div>
+
+  {/* Main Chat */}
+  <div className="flex-1 p-4 md:p-6">
+    <h1 className="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-indigo-600 via-purple-500 to-blue-400 bg-clip-text text-transparent dark:from-indigo-300 dark:via-purple-300 dark:to-blue-200">
+       MoodMirror: Decode the Vibe
+    </h1>
+
+    <div className="h-[65vh] overflow-y-auto space-y-4 p-4 bg-white/60 dark:bg-white/5 rounded-2xl border border-white/20 shadow-inner backdrop-blur-md">
+      {messages.map((msg, i) => (
+        <ChatBubble key={i} role={msg.role} text={msg.text} />
+      ))}
+      <div ref={messagesEndRef} />
+    </div>
+
+    {/* Input */}
+    <div className="mt-4 flex items-center bg-white/70 dark:bg-white/10 border border-gray-300 dark:border-gray-600 rounded-xl px-3 shadow-md">
+      <input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Paste convo or type what happened..."
+        className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500"
+      />
+      <button
+        onClick={handleSend}
+        className="hover:text-indigo-600 dark:hover:text-purple-300 transition"
+      >
+        <SendHorizonal className="w-5 h-5" />
+      </button>
+    </div>
+
+    {/* Export Button */}
+    <button
+      onClick={exportChatToPDF}
+      className="mt-6 flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-500 to-blue-400 text-white px-4 py-2 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-300"
+    >
+      📄 Export Chat
+      <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">PDF</span>
+    </button>
+  </div>
+</div>
+
   );
 }
 
