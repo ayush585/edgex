@@ -1,24 +1,36 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  doc, getDoc, setDoc, collection, addDoc,
-  serverTimestamp, onSnapshot, query, orderBy, updateDoc
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
+  onSnapshot,
+  query,
+  orderBy,
+  updateDoc,
 } from "firebase/firestore";
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { auth, db } from "../firebase";
 import ChatBubble from "../components/ChatBubble";
 import { SendHorizonal, Sun, Moon, PlusCircle, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import jsPDF from "jspdf";
-import { signOut } from "firebase/auth";
+import autoTable from "jspdf-autotable"; // ✅ Import jsPDF and autoTable for PDF generation
+
 
 const extractMemory = (text) => {
   const name = text.match(/(?:I am|My name is)\s+(\w+)/i)?.[1];
   const fav = text.match(/(?:I like|enjoy|love)\s+(.+?)(?=[.,]|$)/i)?.[1];
-  const goal = text.match(/(?:want to be(?:come)?|dream of being)\s+(.+?)(?=[.,]|$)/i)?.[1];
+  const goal = text.match(
+    /(?:want to be(?:come)?|dream of being)\s+(.+?)(?=[.,]|$)/i
+  )?.[1];
   return {
     name: name || "friend",
     favSubject: fav || "design",
@@ -81,13 +93,20 @@ const LoginModal = ({ onLogin }) => {
       onLogin(res.user.uid);
     } catch (err) {
       const code = err.code;
-      if (code === "auth/email-already-in-use") setError("Email already registered.");
-      else if (code === "auth/invalid-email") setError("Invalid email address.");
-      else if (code === "auth/weak-password") setError("Password is too weak.");
-      else if (code === "auth/user-not-found" || code === "auth/wrong-password") setError("Invalid credentials.");
-      else setError(err.message);
-    } finally {
-      setIsLoading(false);
+      if (code === "auth/email-already-in-use") {
+        setError("⚠️ Email already registered. Try logging in.");
+      } else if (code === "auth/invalid-email") {
+        setError("⚠️ Invalid email format.");
+      } else if (code === "auth/weak-password") {
+        setError("⚠️ Password too weak (min 6 characters).");
+      } else if (
+        code === "auth/user-not-found" ||
+        code === "auth/wrong-password"
+      ) {
+        setError("❌ Wrong email or password.");
+      } else {
+        setError("❌ " + err.message);
+      }
     }
   };
 
@@ -293,7 +312,8 @@ function CareerCrack() {
 
   const saveChatToFirestore = async (chatData) => {
     if (!userId) return;
-    const firstMsg = chatData.find((m) => m.role === "user")?.text || "Untitled";
+    const firstMsg =
+      chatData.find((m) => m.role === "user")?.text || "Untitled";
     const newDoc = await addDoc(collection(db, "chats", userId, "history"), {
       title: firstMsg.slice(0, 25),
       messages: chatData,
@@ -331,12 +351,17 @@ function CareerCrack() {
         );
         aiReply = res.data.choices[0].message.content;
       } else {
-        const res = await axios.post("http://127.0.0.1:5000/ask", { prompt: input });
+        const res = await axios.post("http://127.0.0.1:5000/ask", {
+          prompt: input,
+        });
         aiReply = res.data.response;
       }
 
       await saveMemory(input);
-      const updatedChat = [...currentChat.slice(0, -1), { role: "ai", text: aiReply }];
+      const updatedChat = [
+        ...currentChat.slice(0, -1),
+        { role: "ai", text: aiReply },
+      ];
       setMessages(updatedChat);
       await saveChatToFirestore(updatedChat);
     } catch (err) {
@@ -349,7 +374,10 @@ function CareerCrack() {
   };
 
   const listenToHistory = (uid) => {
-    const q = query(collection(db, "chats", uid, "history"), orderBy("createdAt", "desc"));
+    const q = query(
+      collection(db, "chats", uid, "history"),
+      orderBy("createdAt", "desc")
+    );
     onSnapshot(q, (snap) => {
       const allChats = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setHistory(allChats);
@@ -369,28 +397,163 @@ function CareerCrack() {
     }
   };
 
-  const exportChatToPDF = () => {
-    const doc = new jsPDF();
-    let y = 10;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
+ 
 
-    messages.forEach(({ role, text }) => {
-      const label = role === "user" ? "🧍 You:" : "🤖 CareerCrack:";
-      const wrappedText = doc.splitTextToSize(`${label} ${text}`, 180);
-      wrappedText.forEach((line) => {
-        if (y > 280) {
-          doc.addPage();
-          y = 10;
-        }
-        doc.text(line, 10, y);
-        y += 8;
-      });
-      y += 4;
-    });
+  
+// Simple bar chart drawer using jsPDF graphics
+const drawSimpleBarChart = (doc, data, labels, x, y, width, height, maxVal) => {
+  if (!data || data.length === 0) return;
+  if (!labels || labels.length !== data.length) {
+    console.error('Chart data and labels must have the same length');
+    return;
+  }
+  if (maxVal <= 0) maxVal = Math.max(...data, 1);
 
-    doc.save("CareerCrack_Chat.pdf");
+  const barWidth = (width / data.length) * 0.6;
+  const gap = (width / data.length) * 0.4;
+
+  doc.setFillColor("#7E57C2"); // Purple bars
+  doc.setDrawColor("#5E35B1");
+  doc.setLineWidth(0.8);
+
+  data.forEach((val, i) => {
+    const barHeight = (val / maxVal) * height;
+    const xPos = x + i * (barWidth + gap);
+    const yPos = y + height - barHeight;
+
+    doc.roundedRect(xPos, yPos, barWidth, barHeight, 3, 3, "F");
+
+    // Label centered below each bar
+    doc.setFontSize(9);
+    doc.setTextColor("#333");
+    const labelWidth = doc.getTextWidth(labels[i]);
+    doc.text(labels[i], xPos + barWidth / 2 - labelWidth / 2, y + height + 12);
+  });
+
+  // Chart border
+  doc.setDrawColor("#AAA");
+  doc.rect(x, y, width, height);
+};
+
+const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
+  try {
+  const mem = userMemory || { name: "friend", favSubject: "design", goal: "designer" };
+  const {
+    recommendedCareers = ["Software Engineer", "Designer"],
+    keySkills = ["Problem Solving", "Collaboration"],
+    nextSteps = ["Take online course", "Build projects"],
+    skillFitScores = [80, 65, 90],
+    skillFitLabels = ["Coding", "Communication", "Creativity"],
+  } = aiSuggestions || {};
+
+  const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+
+  // ----- TITLE & HEADER BAR -----
+  const pageWidth = doc.internal.pageSize.getWidth();
+  doc.setFillColor("#7E57C2");
+  doc.rect(0, 0, pageWidth, 60, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.setTextColor("#FFFFFF");
+  doc.text("Your Career Report", 40, 40);
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text("powered by Edgex", 40, 55);
+
+  // ----- USER INFO SECTION -----
+  let y = 90;
+  doc.setFillColor("#F3E5F5"); // Light purple background
+  doc.roundedRect(40, y - 20, pageWidth - 80, 80, 10, 10, "F");
+
+  doc.setTextColor("#4A148C");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("User Information", 50, y);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor("#333333");
+  doc.text(`Name: ${mem.name}`, 50, y + 30);
+  doc.text(`Dream Career: ${mem.goal}`, 50, y + 50);
+  doc.text(`Favorite Subject: ${mem.favSubject}`, 280, y + 30);
+
+  // ----- AI SUGGESTIONS SECTION -----
+  y += 100;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor("#5E35B1");
+  doc.text("AI Suggestions", 40, y);
+
+  y += 10;
+
+  // Common table styles
+  const tableOptionsBase = {
+    startY: y,
+    margin: { left: 40, right: 40 },
+    headStyles: { fillColor: "#CE93D8", textColor: "#4A148C", fontStyle: "bold" },
+    styles: { fontSize: 11, cellPadding: 6 },
   };
+
+  // Recommended Careers
+  autoTable(doc, {
+    ...tableOptionsBase,
+    head: [["Recommended Career Fields"]],
+    body: recommendedCareers.map((career) => [career]),
+  });
+
+  y = doc.lastAutoTable.finalY + 15;
+
+  // Key Skills
+  autoTable(doc, {
+    ...tableOptionsBase,
+    startY: y,
+    head: [["Key Skills to Learn"]],
+    body: keySkills.map((skill) => [skill]),
+  });
+
+  y = doc.lastAutoTable.finalY + 15;
+
+  // Actionable Next Steps
+  autoTable(doc, {
+    ...tableOptionsBase,
+    startY: y,
+    head: [["Actionable Next Steps"]],
+    body: nextSteps.map((step) => [step]),
+  });
+
+  // ----- OPTIONAL SIMPLE BAR CHART -----
+  y = doc.lastAutoTable.finalY + 40;
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor("#5E35B1");
+  doc.text("Skill Fit Overview", 40, y - 10);
+
+  const chartWidth = pageWidth - 80;
+  const chartHeight = 100;
+  const maxScore = Math.max(...skillFitScores, 100);
+
+  drawSimpleBarChart(doc, skillFitScores, skillFitLabels, 40, y, chartWidth, chartHeight, maxScore);
+
+  // ----- MOTIVATIONAL FOOTER -----
+  doc.setFontSize(10);
+  doc.setTextColor("#888888");
+  doc.text("Dream big! - Team Edgex", 40, 780);
+
+  // ----- SAVE PDF -----
+  doc.save("Career_Report.pdf");
+  } catch (error) {
+  console.error("Failed to generate PDF:", error);
+  // Consider showing a user-friendly error message
+   alert("Failed to generate PDF. Please try again.");
+ }
+};
+
+
+
+
 
   if (!userId) return <LoginModal onLogin={setUserId} />;
 
@@ -402,6 +565,7 @@ function CareerCrack() {
         <div className="w-64 bg-white/60 dark:bg-[#30104d]/60 backdrop-blur-xl border-r border-white/20 p-4 space-y-4 shadow-xl rounded-tr-3xl rounded-br-3xl transition-all duration-500">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold">💬 Your Chats</h2>
+
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setDarkMode(!darkMode)}
@@ -445,8 +609,11 @@ function CareerCrack() {
           {history.map((chat) => (
             <div
               key={chat.id}
-              className={`p-2 rounded-xl cursor-pointer hover:scale-[1.02] hover:bg-white/40 dark:hover:bg-purple-800 transition-all shadow-sm ${selectedChatId === chat.id ? "bg-white/50 dark:bg-purple-700" : ""
-                }`}
+              className={`p-2 rounded-xl cursor-pointer hover:scale-[1.02] hover:bg-white/40 dark:hover:bg-purple-800 transition-all shadow-sm ${
+                selectedChatId === chat.id
+                  ? "bg-white/50 dark:bg-purple-700"
+                  : ""
+              }`}
               onClick={() => loadChat(chat.id)}
             >
               <input
@@ -483,9 +650,12 @@ function CareerCrack() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="💡 Tell me about your goals, hobbies, dreams..."
-              className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-purple-200"
+              className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-purple-200 border-none hover:border-none hover:outline-none focus:outline-none focus:ring-0 focus:border-none"
             />
-            <button onClick={handleSend} className="p-2 hover:scale-110 transition-all text-pink-600 dark:text-pink-300">
+            <button
+              onClick={handleSend}
+              className="p-2 hover:scale-110 transition-all text-pink-600 dark:text-pink-300"
+            >
               <SendHorizonal className="w-5 h-5" />
             </button>
           </div>
@@ -500,7 +670,6 @@ function CareerCrack() {
         </div>
       </div>
     </div>
-
   );
 }
 
