@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaRobot, FaUserCircle } from "react-icons/fa";
+import TypingIndicator from "./TypingIndicator"; // <-- This imports the new component
 
 const ChatBubble = ({ role, text }) => {
   const isUser = role === "user";
@@ -7,7 +8,11 @@ const ChatBubble = ({ role, text }) => {
   const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {
-    if (isTyping) return;
+    // Your typewriter effect logic is perfect and doesn't need changes.
+    if (isTyping) {
+      setDisplayedText(""); 
+      return;
+    }
 
     let i = 0;
     const interval = setInterval(() => {
@@ -18,6 +23,22 @@ const ChatBubble = ({ role, text }) => {
     return () => clearInterval(interval);
   }, [text, isTyping]);
 
+  // If the text is "__typing__", we will render the new animated indicator.
+  if (isTyping) {
+    return (
+      <div className="flex items-start gap-3 mb-4">
+        <div className="mt-1">
+          <FaRobot className="w-6 h-6 text-gray-500 drop-shadow" />
+        </div>
+        {/* The indicator is placed inside a bubble for consistent styling */}
+        <div className="bg-white/20 border border-white/30 backdrop-blur-lg rounded-2xl rounded-bl-none shadow-inner">
+          <TypingIndicator />
+        </div>
+      </div>
+    );
+  }
+
+  // Otherwise, render a normal message bubble.
   return (
     <div
       className={`flex items-start gap-3 mb-4 ${
@@ -42,15 +63,7 @@ const ChatBubble = ({ role, text }) => {
             : "bg-white/20 text-gray-900 dark:text-white border border-white/30 backdrop-blur-lg rounded-2xl rounded-bl-none shadow-inner"
         }`}
       >
-        {isTyping ? (
-          <div className="flex items-center space-x-1 h-5">
-            <span className="animate-bounce">•</span>
-            <span className="animate-bounce delay-100">•</span>
-            <span className="animate-bounce delay-200">•</span>
-          </div>
-        ) : (
-          displayedText
-        )}
+        {displayedText}
       </div>
     </div>
   );

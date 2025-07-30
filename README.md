@@ -129,6 +129,9 @@ Ayushman Mukherjee	Project Admin	@ayush585 [github](https://github.com/ayush585)
 Aishika 💫	Contributor	@aishikabiswas [github](https://github.com/aishikabiswas)
 
 
+Kris 💫 Contributor [github](https://github.com/kris2005mehra) 
+
+
 You?	Contributor	⭐ Star the repo & contribute!
 
 Want your name here? Submit a valid PR and we’ll add you 💖
