@@ -4,95 +4,14 @@ import {
   serverTimestamp, onSnapshot, query, orderBy, deleteDoc
 } from "firebase/firestore";
 import {
-  signInWithEmailAndPassword,
   onAuthStateChanged,
-  createUserWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../firebase";
 import ChatBubble from "../components/ChatBubble";
+import LoginModal from "../components/common/LoginModal";
 import { SendHorizonal, PlusCircle, Moon, Sun } from "lucide-react";
 import axios from "axios";
 import jsPDF from "jspdf";
-
-// 🔐 Login Modal
-const LoginModal = ({ onLogin }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [mode, setMode] = useState("login");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    try {
-      let userCredential;
-      if (mode === "signup") {
-        userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        userCredential = await signInWithEmailAndPassword(auth, email, password);
-      }
-      onLogin(userCredential.user.uid);
-    } catch (err) {
-      const code = err.code;
-      if (code === 'auth/email-already-in-use') {
-        setError("⚠️ Email already registered. Try logging in.");
-      } else if (code === 'auth/invalid-email') {
-        setError("⚠️ Invalid email address.");
-      } else if (code === 'auth/weak-password') {
-        setError("⚠️ Password too weak. Use at least 6 characters.");
-      } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password') {
-        setError("❌ Invalid email or password.");
-      } else {
-        setError("⚠️ Something went wrong. Try again.");
-      }
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
-        <h2 className="text-xl font-bold text-center text-gray-800 dark:text-white">
-          {mode === "signup" ? "📝 Create Account" : "🔐 Login to MoodMirror"}
-        </h2>
-        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full border px-3 py-2 rounded-lg"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border px-3 py-2 rounded-lg"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-          >
-            {mode === "signup" ? "Create Account" : "Login"}
-          </button>
-        </form>
-        <p className="text-center text-sm">
-          {mode === "signup" ? "Already have an account?" : "New here?"}{" "}
-          <button
-            onClick={() => setMode(mode === "signup" ? "login" : "signup")}
-            className="text-indigo-600 hover:underline"
-          >
-            {mode === "signup" ? "Login" : "Sign Up"}
-          </button>
-        </p>
-      </div>
-    </div>
-  );
-};
 
 function MoodMirror() {
   const [messages, setMessages] = useState([]);
@@ -232,7 +151,16 @@ function MoodMirror() {
     pdf.save("MoodMirror_Chat.pdf");
   };
 
-  if (!userId) return <LoginModal onLogin={(uid) => setUserId(uid)} />;
+  if (!userId) return (
+    <LoginModal 
+      onLogin={(uid) => setUserId(uid)}
+      title="🔐 Login to MoodMirror"
+      subtitle="Sign in to decode the vibe"
+      appName="MoodMirror"
+      theme="indigo"
+      showFullName={false}
+    />
+  );
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-pink-100 via-indigo-100 to-white dark:from-gray-900 dark:to-black font-[Poppins] text-gray-900 dark:text-white">
