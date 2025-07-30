@@ -230,6 +230,13 @@ function CareerCrack() {
   
 // Simple bar chart drawer using jsPDF graphics
 const drawSimpleBarChart = (doc, data, labels, x, y, width, height, maxVal) => {
+  if (!data || data.length === 0) return;
+  if (!labels || labels.length !== data.length) {
+    console.error('Chart data and labels must have the same length');
+    return;
+  }
+  if (maxVal <= 0) maxVal = Math.max(...data, 1);
+
   const barWidth = (width / data.length) * 0.6;
   const gap = (width / data.length) * 0.4;
 
@@ -257,6 +264,7 @@ const drawSimpleBarChart = (doc, data, labels, x, y, width, height, maxVal) => {
 };
 
 const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
+  try {
   const mem = userMemory || { name: "friend", favSubject: "design", goal: "designer" };
   const {
     recommendedCareers = ["Software Engineer", "Designer"],
@@ -364,6 +372,11 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
 
   // ----- SAVE PDF -----
   doc.save("Career_Report.pdf");
+  } catch (error) {
+  console.error("Failed to generate PDF:", error);
+  // Consider showing a user-friendly error message
+   alert("Failed to generate PDF. Please try again.");
+ }
 };
 
 
