@@ -1,2 +1,5 @@
-node_modules
--e "node_modules\n.vite\n.next\n.vercel" 
+node_modules/
+.vite/
+.next/
+.vercel/
+build/
