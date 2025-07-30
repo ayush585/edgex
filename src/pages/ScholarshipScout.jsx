@@ -128,90 +128,91 @@ Why it's a good match.
   const current = steps[step];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-pink-100 to-purple-100 p-6 font-poppins">
-      <div className="max-w-2xl mx-auto bg-white/40 backdrop-blur-lg p-8 rounded-3xl border border-white/30 shadow-2xl">
-        <h1 className="text-4xl font-bold text-center text-purple-700 mb-6">
-          🎓 ScholarshipScout
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-200 via-orange-100 to-yellow-300 p-6 font-poppins text-gray-900">
+  <div className="max-w-2xl mx-auto bg-white/50 backdrop-blur-xl p-8 rounded-3xl border border-orange-200 shadow-2xl">
+    <h1 className="text-4xl font-extrabold text-center bg-gradient-to-r from-yellow-700 via-orange-500 to-red-500 bg-clip-text text-transparent mb-6 drop-shadow-md">
+      🎓 ScholarshipScout
+    </h1>
 
-        {/* Form Stepper */}
-        {matches.length === 0 && (
-          <div className="space-y-4 animate-fade-in">
-            <label className="block text-lg font-medium">{current.label}</label>
-            {current.type === "select" ? (
-              <select
-                value={profile[current.key]}
-                onChange={handleChange}
-                className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-purple-400"
-              >
-                <option value="">Select {current.label}</option>
-                {current.options.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type={current.type}
-                placeholder={current.placeholder || current.label}
-                value={profile[current.key]}
-                onChange={handleChange}
-                className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-purple-400"
-              />
-            )}
-
-            <button
-              onClick={handleNext}
-              disabled={!profile[current.key] || loading}
-              className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-full font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
-            >
-              {step < steps.length - 1
-                ? "Next"
-                : loading
-                ? "🔎 Searching…"
-                : "🎯 Find Scholarships"}
-              <ArrowRightCircle size={20} />
-            </button>
-          </div>
-        )}
-
-        {/* AI Results */}
-        {matches.length > 0 && (
-          <div ref={aiRef} className="mt-8 space-y-4 animate-fade-in">
-            <h2 className="text-xl font-semibold text-purple-800 mb-3">
-              ✅ Top Matches for You:
-            </h2>
-            {matches.map((m, i) => (
-              <div
-                key={i}
-                className="p-4 bg-white/60 rounded-2xl border border-white/30 backdrop-blur-md shadow-md hover:scale-[1.02] transition-transform duration-300"
-              >
-                <ReactMarkdown
-                  components={{
-                    p: ({ node, ...props }) => (
-                      <p className="whitespace-pre-wrap" {...props} />
-                    ),
-                    strong: ({ node, ...props }) => (
-                      <strong className="text-purple-800" {...props} />
-                    ),
-                    a: ({ node, ...props }) => (
-                      <a
-                        className="text-blue-600 underline hover:text-blue-800"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        {...props}
-                      />
-                    ),
-                  }}
-                >
-                  {m}
-                </ReactMarkdown>
-              </div>
+    {/* Form Stepper */}
+    {matches.length === 0 && (
+      <div className="space-y-4 animate-fade-in">
+        <label className="block text-lg font-semibold text-orange-800">{current.label}</label>
+        {current.type === "select" ? (
+          <select
+            value={profile[current.key]}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl border bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          >
+            <option value="">Select {current.label}</option>
+            {current.options.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
             ))}
-          </div>
+          </select>
+        ) : (
+          <input
+            type={current.type}
+            placeholder={current.placeholder || current.label}
+            value={profile[current.key]}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl border bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
         )}
+
+        <button
+          onClick={handleNext}
+          disabled={!profile[current.key] || loading}
+          className="mt-4 w-full bg-gradient-to-r from-yellow-600 via-orange-500 to-red-400 hover:scale-105 text-white py-3 rounded-full font-semibold flex justify-center items-center gap-2 shadow-md transition-all duration-300 disabled:opacity-50"
+        >
+          {step < steps.length - 1
+            ? "Next"
+            : loading
+            ? "🔎 Searching…"
+            : "🎯 Find Scholarships"}
+          <ArrowRightCircle size={20} />
+        </button>
       </div>
-    </div>
+    )}
+
+    {/* AI Results */}
+    {matches.length > 0 && (
+      <div ref={aiRef} className="mt-8 space-y-4 animate-fade-in">
+        <h2 className="text-xl font-semibold text-orange-800 mb-3">
+          ✅ Top Matches for You:
+        </h2>
+        {matches.map((m, i) => (
+          <div
+            key={i}
+            className="p-4 bg-yellow-100/80 rounded-2xl border border-orange-200 backdrop-blur-md shadow-inner hover:scale-[1.02] transition-transform duration-300"
+          >
+            <ReactMarkdown
+              components={{
+                p: ({ node, ...props }) => (
+                  <p className="whitespace-pre-wrap" {...props} />
+                ),
+                strong: ({ node, ...props }) => (
+                  <strong className="text-orange-700 font-bold" {...props} />
+                ),
+                a: ({ node, ...props }) => (
+                  <a
+                    className="text-red-600 underline hover:text-red-800 font-medium"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    {...props}
+                  />
+                ),
+              }}
+            >
+              {m}
+            </ReactMarkdown>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+
   );
 }
