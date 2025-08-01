@@ -1,4 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
+import {FaGithub }from "react-icons/fa";
+import {FaLinkedin }from "react-icons/fa";
 import {
   motion,
   useScroll,
@@ -293,8 +295,22 @@ function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 text-center text-gray-500 text-sm">
-        © {new Date().getFullYear()} EDGEx by Ayushman. All rights reserved.
+      <footer className="py-8  text-gray-500 text-sm ">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center ">
+           © {new Date().getFullYear()} EDGEx by Ayushman. All rights reserved.
+         
+           <div className="flex  space-x-4 text-purple-400 text-3xl ">
+            <a href="https://github.com/ayush585/edgex" target="_blank" 
+               className="hover:text-purple-200 transition"> 
+                <FaGithub/>
+              </a>
+
+              <a href="https://www.linkedin.com/in/ayushman-mukherjee-437a49314/" target="_blank" 
+                   className="hover:text-purple-200 transition"> 
+                <FaLinkedin/>
+              </a>
+           </div>
+         </div>
       </footer>
     </div>
   );
