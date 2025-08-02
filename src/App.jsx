@@ -4,8 +4,9 @@ import CareerCrack from "./pages/CareerCrack";
 import MoodMirror from "./pages/MoodMirror";
 import ScholarshipScout from "./pages/ScholarshipScout";
 import SmartNotes from "./pages/SmartNotes";
-import VoiceFeedback from "./pages/VoiceFeedback"; // ✅ Add this line
+import VoiceFeedback from "./pages/VoiceFeedback";
 import Home from "./pages/Home";
+import ScrollToTopButton from "./components/ScrollToTopButton"; // ✅ Import the button
 
 function App() {
   return (
@@ -16,8 +17,11 @@ function App() {
         <Route path="/moodmirror" element={<MoodMirror />} />
         <Route path="/scholarships" element={<ScholarshipScout />} />
         <Route path="/smartnotes" element={<SmartNotes />} />
-        <Route path="/voicefeedback" element={<VoiceFeedback />} /> {/* 🎤 VoiceMirror Route */}
+        <Route path="/voicefeedback" element={<VoiceFeedback />} />
       </Routes>
+
+      {/* ✅ Scroll to Top Button outside routes so it's always available */}
+      <ScrollToTopButton />
     </Router>
   );
 }
