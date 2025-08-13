@@ -295,7 +295,8 @@ function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8  text-gray-500 text-sm ">
+      {/* Added horizontal padding to footer for better spacing */}
+      <footer className="py-8  text-gray-500 text-sm px-8 lg:px-20 ">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center ">
            © {new Date().getFullYear()} EDGEx by Ayushman. All rights reserved.
          
