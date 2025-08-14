@@ -158,14 +158,14 @@ function Home() {
           <p className="text-lg text-gray-300 mb-8">
             Your all-in-one AI toolkit: career mentor, mood companion, scholarship tracker & more.
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center items-center  gap-4">
             <Link
               to="/careercrack"
               className="bg-purple-600 hover:bg-purple-700 transition px-6 py-3 rounded-lg text-white font-semibold flex items-center gap-2"
             >
               Start Exploring <ArrowRight size={18} />
             </Link>
-            <a href="#features" className="text-gray-400 hover:text-white underline">
+            <a href="#features" className="text-gray-400 hover:text-white underline flex items-center h-full px-6 py-3 rounded-lg font-semibold">
               Learn More
             </a>
           </div>
