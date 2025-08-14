@@ -397,9 +397,8 @@ function CareerCrack() {
     }
   };
 
- 
 
-  
+
 // Simple bar chart drawer using jsPDF graphics
 const drawSimpleBarChart = (doc, data, labels, x, y, width, height, maxVal) => {
   if (!data || data.length === 0) return;
@@ -547,7 +546,7 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
   } catch (error) {
   console.error("Failed to generate PDF:", error);
   // Consider showing a user-friendly error message
-   alert("Failed to generate PDF. Please try again.");
+    alert("Failed to generate PDF. Please try again.");
  }
 };
 
@@ -649,6 +648,12 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               placeholder="💡 Tell me about your goals, hobbies, dreams..."
               className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-purple-200 border-none hover:border-none hover:outline-none focus:outline-none focus:ring-0 focus:border-none"
             />
