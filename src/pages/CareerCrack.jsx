@@ -22,7 +22,68 @@ import ChatBubble from "../components/ChatBubble";
 import { SendHorizonal, Sun, Moon, PlusCircle, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable"; // ✅ Import jsPDF and autoTable for PDF generation
+import autoTable from "jspdf-autotable";
+
+// The new ChatInput component with "Enter to Send" logic
+function ChatInput({ onSend, disabled }) {
+  const [value, setValue] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
+  const textareaRef = useRef(null);
+
+  const handleSend = () => {
+    const text = value.trim();
+    if (!text || disabled) return;
+    onSend?.(text);
+    setValue("");
+  };
+
+  const handleKeyDown = (e) => {
+    // Block send if composing with an IME; allow Shift+Enter to newline
+    const isEnter = e.key === "Enter" || e.code === "Enter";
+    if (isEnter && !e.shiftKey && !isComposing) {
+      e.preventDefault(); // stop newline
+      handleSend();
+    }
+  };
+
+  // Auto-resize textarea height based on content
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      const scrollHeight = textarea.scrollHeight;
+      // Set a max height (e.g., 200px) to prevent it from growing indefinitely
+      textarea.style.height = `${Math.min(scrollHeight, 200)}px`;
+    }
+  }, [value]);
+
+  return (
+    <div className="flex items-end gap-2 bg-white/90 dark:bg-purple-700 border border-gray-300 dark:border-purple-600 rounded-2xl px-4 py-2 shadow-xl backdrop-blur-lg">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={() => setIsComposing(false)}
+        rows={1}
+        placeholder="💡 Tell me about your goals, hobbies, dreams..."
+        aria-label="Message"
+        disabled={disabled}
+        className="flex-1 resize-none bg-transparent outline-none text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-purple-200"
+      />
+      <button
+        type="button"
+        onClick={handleSend}
+        disabled={disabled || !value.trim()}
+        className="p-2 rounded-full hover:scale-110 transition-all text-pink-600 dark:text-pink-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Send message"
+      >
+        <SendHorizonal className="w-5 h-5" />
+      </button>
+    </div>
+  );
+}
 
 
 const extractMemory = (text) => {
@@ -268,12 +329,12 @@ const LoginModal = ({ onLogin }) => {
 
 function CareerCrack() {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
   const [userId, setUserId] = useState(null);
   const [history, setHistory] = useState([]);
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [useGroq, setUseGroq] = useState(true);
+  const [isAiTyping, setIsAiTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -322,13 +383,13 @@ function CareerCrack() {
     setSelectedChatId(newDoc.id);
   };
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    const userMsg = { role: "user", text: input };
+  const handleSend = async (text) => {
+    if (!text.trim()) return;
+    setIsAiTyping(true);
+    const userMsg = { role: "user", text: text };
     const typing = { role: "ai", text: "__typing__" };
     const currentChat = [...messages, userMsg, typing];
     setMessages(currentChat);
-    setInput("");
 
     try {
       let aiReply = "";
@@ -344,7 +405,7 @@ function CareerCrack() {
                 content:
                   "You're CareerCrack, an AI mentor helping students pick careers. Always refer to their memory and speak like a friendly guide.",
               },
-              { role: "user", content: input },
+              { role: "user", content: text },
             ],
             temperature: 0.7,
           }
@@ -352,12 +413,12 @@ function CareerCrack() {
         aiReply = res.data.choices[0].message.content;
       } else {
         const res = await axios.post("http://127.0.0.1:5000/ask", {
-          prompt: input,
+          prompt: text,
         });
         aiReply = res.data.response;
       }
 
-      await saveMemory(input);
+      await saveMemory(text);
       const updatedChat = [
         ...currentChat.slice(0, -1),
         { role: "ai", text: aiReply },
@@ -370,6 +431,8 @@ function CareerCrack() {
         ...prev.slice(0, -1),
         { role: "ai", text: "⚠️ Something went wrong. Try again!" },
       ]);
+    } finally {
+        setIsAiTyping(false);
     }
   };
 
@@ -397,8 +460,9 @@ function CareerCrack() {
     }
   };
 
+ 
 
-
+  
 // Simple bar chart drawer using jsPDF graphics
 const drawSimpleBarChart = (doc, data, labels, x, y, width, height, maxVal) => {
   if (!data || data.length === 0) return;
@@ -546,7 +610,7 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
   } catch (error) {
   console.error("Failed to generate PDF:", error);
   // Consider showing a user-friendly error message
-    alert("Failed to generate PDF. Please try again.");
+   alert("Failed to generate PDF. Please try again.");
  }
 };
 
@@ -644,25 +708,8 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="mt-4 flex items-center bg-white/90 dark:bg-purple-700 border border-gray-300 dark:border-purple-600 rounded-full px-4 shadow-xl backdrop-blur-lg">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder="💡 Tell me about your goals, hobbies, dreams..."
-              className="flex-1 bg-transparent outline-none py-3 px-2 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-purple-200 border-none hover:border-none hover:outline-none focus:outline-none focus:ring-0 focus:border-none"
-            />
-            <button
-              onClick={handleSend}
-              className="p-2 hover:scale-110 transition-all text-pink-600 dark:text-pink-300"
-            >
-              <SendHorizonal className="w-5 h-5" />
-            </button>
+          <div className="mt-4">
+             <ChatInput onSend={handleSend} disabled={isAiTyping} />
           </div>
 
           <button

@@ -1,24 +1,89 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import ChatInput from "../components/chat/ChatInput"; // Assumes ChatInput component exists
+
+// The new ChatInput component with "Enter to Send" logic
+function ChatInput({ onSend, disabled }) {
+  const [value, setValue] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
+  const textareaRef = useRef(null);
+
+  const handleSend = () => {
+    const text = value.trim();
+    if (!text || disabled) return;
+    onSend?.(text);
+    setValue("");
+  };
+
+  const handleKeyDown = (e) => {
+    // Block send if composing with an IME; allow Shift+Enter to newline
+    const isEnter = e.key === "Enter" || e.code === "Enter";
+    if (isEnter && !e.shiftKey && !isComposing) {
+      e.preventDefault(); // stop newline
+      handleSend();
+    }
+  };
+  
+  // Auto-resize textarea height based on content
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      const scrollHeight = textarea.scrollHeight;
+      // Set a max height (e.g., 200px) to prevent it from growing indefinitely
+      textarea.style.height = `${Math.min(scrollHeight, 150)}px`;
+    }
+  }, [value]);
+
+
+  return (
+    <div className="p-4 bg-[#0e0e1a] flex items-end gap-2 border-t border-white/10">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={() => setIsComposing(false)}
+        placeholder="Paste your class notes or questions..."
+        className="flex-1 p-3 bg-[#12121c] rounded-lg resize-none text-white border border-white/10 outline-none"
+        rows={1}
+        disabled={disabled}
+      />
+      <button
+        onClick={handleSend}
+        disabled={disabled || !value.trim()}
+        className="bg-purple-600 hover:bg-purple-700 p-3 rounded-lg text-white flex items-center justify-center h-12 w-12 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <ArrowRight />
+      </button>
+    </div>
+  );
+}
+
 
 function SmartNotes() {
   const [messages, setMessages] = useState([
     { from: "bot", text: "Hi! Paste your class notes and I’ll summarize and tag them for you." },
   ]);
+  const [isAiTyping, setIsAiTyping] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // The handleSend function now accepts 'text' from the ChatInput component
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+
   const handleSend = async (text) => {
     if (!text.trim()) return;
+    setIsAiTyping(true);
 
     const userMessage = { from: "user", text: text };
     setMessages((prev) => [...prev, userMessage]);
 
-    // Add a temporary "Thinking..." message
+    // Fake loading response
     setMessages((prev) => [...prev, { from: "bot", text: "Thinking..." }]);
 
-    // Simulate an API call and response
     setTimeout(() => {
       const botResponse = {
         from: "bot",
@@ -30,14 +95,14 @@ function SmartNotes() {
           .join("\n- ")}\n\n🏷️ Tags: [Conceptual, Important, Notes]`,
       };
 
-      // Replace "Thinking..." with the actual response
       setMessages((prev) => [...prev.slice(0, -1), botResponse]);
+      setIsAiTyping(false);
     }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a14] text-black flex flex-col font-sans">
-      <header className="p-4 bg-[#12121c] text-center shadow-md text-xl font-bold text-purple-400 border-b border-purple-900/50">
+    <div className="min-h-screen bg-[#0a0a14] text-white flex flex-col">
+      <header className="p-4 bg-[#12121c] text-center shadow-md text-xl font-bold text-purple-400">
         📝 Smart Notes AI
       </header>
 
@@ -47,24 +112,21 @@ function SmartNotes() {
             key={i}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`flex flex-col w-fit max-w-xl p-4 rounded-xl shadow-lg ${
+            className={`max-w-xl p-4 rounded-lg ${
               msg.from === "user"
-                ? "ml-auto bg-gradient-to-br from-purple-600 to-indigo-600 text-gray-400"
-                : "bg-[#1a1a2e] text-gray-600"
+                ? "ml-auto bg-purple-600 text-white"
+                : "bg-[#1a1a2e] text-gray-200"
             }`}
           >
-            {/* We split by newline to render multi-line messages correctly */}
             {msg.text.split("\n").map((line, j) => (
-              <p key={j} className="whitespace-pre-wrap">{line}</p>
+              <p key={j}>{line}</p>
             ))}
           </motion.div>
         ))}
+         <div ref={messagesEndRef} />
       </div>
 
-      {/* The ChatInput component now handles the text area, button, and keydown events */}
-      <div className="p-4 bg-[#5157f3] border-t border-white/10">
-        <ChatInput onSend={handleSend} />
-      </div>
+      <ChatInput onSend={handleSend} disabled={isAiTyping} />
     </div>
   );
 }
