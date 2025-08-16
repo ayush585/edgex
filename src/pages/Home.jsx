@@ -185,13 +185,13 @@ function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-glass backdrop-blur-md p-6 rounded-xl border border-white/10 hover:shadow-xl transition cursor-pointer"
+                className="bg-glass backdrop-blur-md p-6 rounded-xl border border-white/10 transition cursor-pointer flex flex-col justify-between h-full hover:shadow-2xl hover:border-white/20 hover:bg-white/5"
               >
                 <div className="flex items-center gap-3 mb-3">
                   {feat.icon}
                   <h3 className="text-xl font-semibold">{feat.title}</h3>
                 </div>
-                <p className="text-gray-400">{feat.desc}</p>
+                <p className="text-gray-400 flex-grow">{feat.desc}</p>
               </motion.div>
             );
             return feat.link ? (
