@@ -207,6 +207,9 @@ function Home() {
 
       {/* Counters */}
       <section className="py-20 bg-[#0a0a14] text-center">
+        <h2 className="text-3xl font-bold text-white mb-12">
+           Our Impact So Far 🚀
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {counters.map((item, i) => (
             <motion.div
@@ -215,6 +218,12 @@ function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: i * 0.2 }}
               viewport={{ once: true }}
+              className="p-6 rounded-xl transition transform hover:scale-105 hover:bg-gray-800 hover:shadow-lg cursor-pointer"
+              title={item.label === "Students Helped"
+              ? "Number of students who received guidance"
+              : item.label === "Scholarships Found"
+              ? "Scholarships we helped students find"
+              : "Sessions that improved students"}
             >
               <p className="text-4xl font-bold text-purple-400">{counts[i]}+</p>
               <p className="text-gray-400 mt-2">{item.label}</p>
