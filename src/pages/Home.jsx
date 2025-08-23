@@ -16,6 +16,7 @@ import {
   NotebookPen,
   Mic,
   FileText,
+  BookAIcon,
 } from "lucide-react";
 
 function Home() {
@@ -62,6 +63,12 @@ function Home() {
       desc: "Download your chats and notes instantly.",
       icon: <FileText className="w-6 h-6 text-purple-400" />,
       link: "/careercrack"
+    },
+    {
+      title: "Resource Vault",
+      desc: "Discover, upvote, and manage useful resources together.",
+      icon: <BookAIcon className="w-6 h-6 text-purple-400" />,
+      link: "/resourcevault"
     },
   ];
 

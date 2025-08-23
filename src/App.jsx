@@ -5,8 +5,9 @@ import MoodMirror from "./pages/MoodMirror";
 import ScholarshipScout from "./pages/ScholarshipScout";
 import SmartNotes from "./pages/SmartNotes";
 import VoiceFeedback from "./pages/VoiceFeedback";
+import ResourceVault from "./pages/ResourceVault";
 import Home from "./pages/Home";
-import ScrollToTopButton from "./components/ScrollToTopButton"; // ✅ Import the button
+import ScrollToTopButton from "./components/ScrollToTopButton"; // Import the button
 
 function App() {
   return (
@@ -18,9 +19,10 @@ function App() {
         <Route path="/scholarships" element={<ScholarshipScout />} />
         <Route path="/smartnotes" element={<SmartNotes />} />
         <Route path="/voicefeedback" element={<VoiceFeedback />} />
+        <Route path="/resourcevault" element={<ResourceVault />} />
       </Routes>
 
-      {/* ✅ Scroll to Top Button outside routes so it's always available */}
+      {/* Scroll to Top Button outside routes so it's always available */}
       <ScrollToTopButton />
     </Router>
   );
