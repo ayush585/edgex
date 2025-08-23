@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -65,7 +65,8 @@ const mockResources = [
 const timeAgo = (dateString) => {
   const now = new Date();
   const date = new Date(dateString);
-  const diffInSeconds = Math.floor((now - date) / 1000);
+  let diffInSeconds = Math.floor((now - date) / 1000);
+  if (diffInSeconds < 0) diffInSeconds = 0; 
   
   if (diffInSeconds < 60) return "Just now";
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
@@ -138,7 +139,12 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-modal-title"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -147,7 +153,7 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <h2 id="login-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               {mode === "signup" ? (
                 <>
                   <UserPlus className="w-6 h-6 text-purple-600" />
@@ -522,7 +528,12 @@ const AddResourceModal = ({ isOpen, onClose, onAdd, onEdit, loading, editingReso
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resource-modal-title"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -531,7 +542,7 @@ const AddResourceModal = ({ isOpen, onClose, onAdd, onEdit, loading, editingReso
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 id="resource-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white">
               {isEditing ? 'Edit Resource' : 'Add Resource'}
             </h2>
             <button
@@ -670,7 +681,10 @@ const ResourceVault = () => {
   const searchTimeoutRef = useRef();
   
   // Get all unique tags
-  const allTags = [...new Set(resources.flatMap(r => r.tags))].sort();
+  const allTags = useMemo(
+    () => [...new Set(resources.flatMap(r => r.tags))].sort(),
+    [resources]
+  );
   
   // Debounced search
   useEffect(() => {
@@ -739,45 +753,42 @@ const ResourceVault = () => {
   // Handle update resource
   const handleUpdateResource = async (resourceId, updatedData) => {
     setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setResources(prev => prev.map(resource => {
-        if (resource.id === resourceId) {
-          return {
-            ...resource,
-            ...updatedData,
-            updated_at: new Date().toISOString()
-          };
-        }
-        return resource;
-      }));
-      setLoading(false);
-      setEditingResource(null);
-    }, 1000);
-    
-    return true;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        setResources(prev => prev.map(resource => {
+          if (resource.id === resourceId) {
+            return {
+              ...resource,
+              ...updatedData,
+              updated_at: new Date().toISOString()
+            };
+          }
+          return resource;
+        }));
+        setLoading(false);
+        setEditingResource(null);
+        resolve(true);
+      }, 1000);
+    });
   };
 
   const handleAddResource = async (newResource) => {
     setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const resource = {
-        id: Date.now(),
-        ...newResource,
-        upvotes: 0,
-        has_upvoted: false,
-        posted_by: currentUser,
-        created_at: new Date().toISOString()
-      };
-      
-      setResources(prev => [resource, ...prev]);
-      setLoading(false);
-    }, 1000);
-    
-    return true;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const resource = {
+          id: Date.now(),
+          ...newResource,
+          upvotes: 0,
+          has_upvoted: false,
+          posted_by: currentUser,
+          created_at: new Date().toISOString()
+        };
+        setResources(prev => [resource, ...prev]);
+        setLoading(false);
+        resolve(true);
+      }, 1000);
+    });
   };
 
   // Handle adding resource with auth check

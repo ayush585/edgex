@@ -16,7 +16,7 @@ import {
   NotebookPen,
   Mic,
   FileText,
-  BookAIcon,
+  BookOpen,
 } from "lucide-react";
 
 function Home() {
@@ -67,7 +67,7 @@ function Home() {
     {
       title: "Resource Vault",
       desc: "Discover, upvote, and manage useful resources together.",
-      icon: <BookAIcon className="w-6 h-6 text-purple-400" />,
+      icon: <BookOpen className="w-6 h-6 text-purple-400" />,
       link: "/resourcevault"
     },
   ];
