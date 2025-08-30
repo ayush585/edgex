@@ -22,6 +22,7 @@ import {
 
 function Home() {
   const [loading, setLoading] = useState(true);
+  const countersRef = useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1500);
@@ -101,24 +102,110 @@ function Home() {
   const { scrollYProgress } = useScroll();
   const y1 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
-  const counters = [
+    const counters = [
     { label: "Students Helped", value: 5700 },
     { label: "Scholarships Found", value: 1300 },
     { label: "Mood Sessions", value: 25000 },
   ];
-  const [counts, setCounts] = useState(counters.map(() => 0));
+  const [counts, setCounts] = useState(counters.map(() => 1)); // Start from 1 instead of 0
+  const [isAnimating, setIsAnimating] = useState(false);
+   
+  // Custom scroll detection for counters - triggers only when actively scrolling to section
   useEffect(() => {
+    let lastScrollTop = 0;
+    let scrollTimeout = null;
+    let hasTriggered = false;
+    
+    const handleScroll = () => {
+      if (!countersRef.current || isAnimating) return;
+      
+      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const rect = countersRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Clear previous timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      
+      // Only trigger when section is 50% visible AND user is actively scrolling
+      if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
+        // Check if user is actually scrolling (not just the section being in view)
+        const isScrolling = Math.abs(currentScrollTop - lastScrollTop) > 10;
+        
+                 if (isScrolling && !hasTriggered) {
+           hasTriggered = true;
+          startCounterAnimation();
+          
+          // Reset trigger flag after animation completes
+          setTimeout(() => {
+            hasTriggered = false;
+          }, 3000); // 3 seconds total (2s animation + 1s delay)
+        }
+
+      }
+      
+      lastScrollTop = currentScrollTop;
+      
+      // Set a timeout to prevent rapid firing
+      scrollTimeout = setTimeout(() => {
+        // This ensures we don't trigger multiple times for the same scroll
+      }, 150);
+    };
+
+    // Check on mount and scroll
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
+  }, [isAnimating]);
+
+  // Separate function to start counter animation
+  const startCounterAnimation = () => {
+    if (isAnimating) return;
+    
+    
+    setIsAnimating(true);
+    
+    // Reset counts to 1
+    setCounts(counters.map(() => 1));
+    
+    // Start the counter animation
+    const duration = 2000; // 2 seconds total
+    const steps = 60; // 60 steps for smooth animation
+    const stepDuration = duration / steps;
+    
+    let currentStep = 0;
+    
     const animate = setInterval(() => {
-      setCounts((prev) =>
-        prev.map((num, i) => {
+      currentStep++;
+      
+      setCounts((prev) => {
+        const newCounts = prev.map((num, i) => {
           const target = counters[i].value;
-          if (num < target) return num + Math.ceil(target / 40);
-          return target;
-        })
-      );
-    }, 50);
-    return () => clearInterval(animate);
-  }, []);
+          const progress = currentStep / steps;
+          const currentValue = Math.floor(1 + (target - 1) * progress);
+          return Math.min(currentValue, target);
+        });
+        
+        // Check if animation is complete
+        if (currentStep >= steps) {
+          clearInterval(animate);
+          console.log("Final counts:", newCounts);
+          
+          // Add a longer delay before allowing next animation
+          setTimeout(() => {
+            setIsAnimating(false); // Allow next animation to trigger
+          }, 10000); // 1 second delay to prevent accidental restarts
+        }
+        
+        return newCounts;
+      });
+    }, stepDuration);
+  };
 
   if (loading) {
     return (
@@ -214,10 +301,28 @@ function Home() {
       </section>
 
       {/* Counters */}
-      <section className="py-20 bg-[#0a0a14] text-center">
+      <section ref={countersRef} className="py-20 bg-[#0a0a14] text-center">
         <h2 className="text-3xl font-bold text-white mb-12">
            Our Impact So Far 🚀
         </h2>
+        {!isAnimating && (
+          <div className="mb-6">
+            <button 
+              onClick={startCounterAnimation}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              {/* 🎯 Click to Start Counter Animation */}
+            </button>
+            <div className="text-blue-400 text-sm mt-2">
+              {/* 💡 Or scroll to this section to trigger automatically */}
+            </div>
+          </div>
+        )}
+        {isAnimating && (
+          <div className="text-green-400 text-sm mb-6 animate-pulse">
+            {/* 🎯 Animation triggered! Counters are counting up... */}
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {counters.map((item, i) => (
             <motion.div
@@ -233,7 +338,12 @@ function Home() {
               ? "Scholarships we helped students find"
               : "Sessions that improved students"}
             >
-              <p className="text-4xl font-bold text-purple-400">{counts[i]}+</p>
+              <p className="text-4xl font-bold text-purple-400">
+                {counts[i].toLocaleString()}+
+                                 {isAnimating && counts[i] === 1 && (
+                   <span className="text-green-400 text-sm ml-2">→ Starting...</span>
+                 )}
+              </p>
               <p className="text-gray-400 mt-2">{item.label}</p>
             </motion.div>
           ))}
@@ -335,3 +445,4 @@ function Home() {
 }
 
 export default Home;
+
