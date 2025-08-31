@@ -75,83 +75,83 @@ function Home() {
   ];
 
   // --- Testimonial Carousel as a child component ---
-function TestimonialCarousel() {
-  const testimonials = [
-    {
-      name: "Ananya S.",
-      quote: "EDGEx helped me discover a career path I never even considered. Life-changing!",
-      role: "Class 12, Delhi",
-    },
-    {
-      name: "Rohan M.",
-      quote: "MoodMirror is like talking to a friend who truly understands you. So cool!",
-      role: "Class 10, Mumbai",
-    },
-    {
-      name: "Sneha T.",
-      quote: "The scholarship tool got me 3 perfect matches. This is the future of guidance!",
-      role: "Commerce Student, Kolkata",
-    },
-  ];
+  function TestimonialCarousel() {
+    const testimonials = [
+      {
+        name: "Ananya S.",
+        quote: "EDGEx helped me discover a career path I never even considered. Life-changing!",
+        role: "Class 12, Delhi",
+      },
+      {
+        name: "Rohan M.",
+        quote: "MoodMirror is like talking to a friend who truly understands you. So cool!",
+        role: "Class 10, Mumbai",
+      },
+      {
+        name: "Sneha T.",
+        quote: "The scholarship tool got me 3 perfect matches. This is the future of guidance!",
+        role: "Commerce Student, Kolkata",
+      },
+    ];
 
-  const [index, setIndex] = useState(0);
-  const next = () => setIndex((prev) => (prev + 1) % testimonials.length);
-  const prev = () =>
-    setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+      const [index, setIndex] = useState(0);
+      const next = () => setIndex((prev) => (prev + 1) % testimonials.length);
+      const prev = () =>
+        setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
-  return (
-    <section className="py-24 px-6 lg:px-20 bg-[#0e0e1a]">
-      <h2 className="text-3xl font-bold text-center mb-12 text-white transition duration-300 hover:text-purple-400 hover:scale-105">
-        ✨ Hear from Our Students
-      </h2>
+      return (
+        <section className="py-24 px-6 lg:px-20 bg-[#0e0e1a]">
+          <h2 className="text-3xl font-bold text-center mb-12 text-white transition duration-300 hover:text-purple-400 hover:scale-105">
+            ✨ Hear from Our Students
+          </h2>
 
-      <div className="relative max-w-3xl mx-auto overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.6 }}
-            className="bg-[#1a1a2e] p-8 rounded-2xl border border-white/10 shadow-xl text-center text-white"
-          >
-            <p className="text-xl italic mb-6">“{testimonials[index].quote}”</p>
-            <p className="font-semibold text-lg">{testimonials[index].name}</p>
-            <p className="text-sm text-purple-300">{testimonials[index].role}</p>
-          </motion.div>
-        </AnimatePresence>
+          <div className="relative max-w-3xl mx-auto overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.6 }}
+                className="bg-[#1a1a2e] p-8 rounded-2xl border border-white/10 shadow-xl text-center text-white"
+              >
+                <p className="text-xl italic mb-6">“{testimonials[index].quote}”</p>
+                <p className="font-semibold text-lg">{testimonials[index].name}</p>
+                <p className="text-sm text-purple-300">{testimonials[index].role}</p>
+              </motion.div>
+            </AnimatePresence>
 
-        {/* Navigation */}
-        <div className="flex justify-center gap-6 mt-8">
-          <button
-            onClick={prev}
-            className="px-4 py-2 rounded-lg bg-purple-700 text-white hover:bg-purple-500 transition"
-          >
-            ← Previous
-          </button>
-          <button
-            onClick={next}
-            className="px-4 py-2 rounded-lg bg-purple-700 text-white hover:bg-purple-500 transition"
-          >
-            Next →
-          </button>
-        </div>
+            {/* Navigation */}
+            <div className="flex justify-center gap-6 mt-8">
+              <button
+                onClick={prev}
+                className="px-4 py-2 rounded-lg bg-purple-700 text-white hover:bg-purple-500 transition"
+              >
+                ← Previous
+              </button>
+              <button
+                onClick={next}
+                className="px-4 py-2 rounded-lg bg-purple-700 text-white hover:bg-purple-500 transition"
+              >
+                Next →
+              </button>
+            </div>
 
-        {/* Dots */}
-        <div className="flex justify-center mt-6 gap-2">
-          {testimonials.map((_, i) => (
-            <span
-              key={i}
-              className={`w-3 h-3 rounded-full ${
-                i === index ? "bg-purple-500" : "bg-gray-500"
-              }`}
-            ></span>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+            {/* Dots */}
+            <div className="flex justify-center mt-6 gap-2">
+              {testimonials.map((_, i) => (
+                <span
+                  key={i}
+                  className={`w-3 h-3 rounded-full ${
+                    i === index ? "bg-purple-500" : "bg-gray-500"
+                  }`}
+                ></span>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
 
 
 
@@ -308,7 +308,7 @@ function TestimonialCarousel() {
           transition={{ duration: 0.7 }}
           className="z-10 max-w-4xl"
         >
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-6 text-white transition duration-300 hover:text-purple-400 hover:scale-105">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-6 text-white transition duration-300 hover:text-purple-500 hover:scale-105">
             Think better with <span className="text-purple-400">EDGEx</span>
           </h1>
           <p className="text-lg text-gray-300 mb-8">
