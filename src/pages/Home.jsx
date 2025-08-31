@@ -74,11 +74,12 @@ function Home() {
     },
   ];
 
+  // --- Testimonial Carousel as a child component ---
+function TestimonialCarousel() {
   const testimonials = [
     {
       name: "Ananya S.",
-      quote:
-        "EDGEx helped me discover a career path I never even considered. Life-changing!",
+      quote: "EDGEx helped me discover a career path I never even considered. Life-changing!",
       role: "Class 12, Delhi",
     },
     {
@@ -88,16 +89,76 @@ function Home() {
     },
     {
       name: "Sneha T.",
-      quote:
-        "The scholarship tool got me 3 perfect matches. This is the future of guidance!",
+      quote: "The scholarship tool got me 3 perfect matches. This is the future of guidance!",
       role: "Commerce Student, Kolkata",
     },
   ];
 
-  const [[index, direction], setIndex] = useState([0, 0]);
+  const [index, setIndex] = useState(0);
+  const next = () => setIndex((prev) => (prev + 1) % testimonials.length);
+  const prev = () =>
+    setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+
+  return (
+    <section className="py-24 px-6 lg:px-20 bg-[#0e0e1a]">
+      <h2 className="text-3xl font-bold text-center mb-12 text-white transition duration-300 hover:text-purple-400 hover:scale-105">
+        ✨ Hear from Our Students
+      </h2>
+
+      <div className="relative max-w-3xl mx-auto overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.6 }}
+            className="bg-[#1a1a2e] p-8 rounded-2xl border border-white/10 shadow-xl text-center text-white"
+          >
+            <p className="text-xl italic mb-6">“{testimonials[index].quote}”</p>
+            <p className="font-semibold text-lg">{testimonials[index].name}</p>
+            <p className="text-sm text-purple-300">{testimonials[index].role}</p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation */}
+        <div className="flex justify-center gap-6 mt-8">
+          <button
+            onClick={prev}
+            className="px-4 py-2 rounded-lg bg-purple-700 text-white hover:bg-purple-500 transition"
+          >
+            ← Previous
+          </button>
+          <button
+            onClick={next}
+            className="px-4 py-2 rounded-lg bg-purple-700 text-white hover:bg-purple-500 transition"
+          >
+            Next →
+          </button>
+        </div>
+
+        {/* Dots */}
+        <div className="flex justify-center mt-6 gap-2">
+          {testimonials.map((_, i) => (
+            <span
+              key={i}
+              className={`w-3 h-3 rounded-full ${
+                i === index ? "bg-purple-500" : "bg-gray-500"
+              }`}
+            ></span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
+  /*const [[index, direction], setIndex] = useState([0, 0]);
   const paginate = (dir) => {
     setIndex(([prev]) => [(prev + dir + testimonials.length) % testimonials.length, dir]);
-  };
+  };*/
 
   const { scrollYProgress } = useScroll();
   const y1 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
@@ -108,7 +169,7 @@ function Home() {
     { label: "Mood Sessions", value: 25000 },
   ];
   const [counts, setCounts] = useState(counters.map(() => 1)); // Start from 1 instead of 0
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false)
    
   // Custom scroll detection for counters - triggers only when actively scrolling to section
   useEffect(() => {
@@ -247,7 +308,7 @@ function Home() {
           transition={{ duration: 0.7 }}
           className="z-10 max-w-4xl"
         >
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-6 text-white transition duration-300 hover:text-purple-400 hover:scale-105">
             Think better with <span className="text-purple-400">EDGEx</span>
           </h1>
           <p className="text-lg text-gray-300 mb-8">
@@ -269,7 +330,7 @@ function Home() {
 
       {/* Features */}
       <section id="features" className="py-20 px-6 lg:px-20 bg-[#0e0e1a]">
-        <h2 className="text-3xl font-bold text-center mb-12 text-white">What can EDGEx AI do?</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-white text-white transition duration-300 hover:text-purple-400 hover:scale-105">What can EDGEx AI do?</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto text-white">
           {features.map((feat, i) => {
             const Card = (
@@ -300,10 +361,13 @@ function Home() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <TestimonialCarousel />
+
       {/* Counters */}
       <section ref={countersRef} className="py-20 bg-[#0a0a14] text-center">
-        <h2 className="text-3xl font-bold text-white mb-12">
-           Our Impact So Far 🚀
+        <h2 className="text-3xl font-bold text-white mb-12 transition duration-300 hover:text-purple-400 hover:scale-105">
+          Our Impact So Far 🚀
         </h2>
         {!isAnimating && (
           <div className="mb-6">
@@ -350,41 +414,7 @@ function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 px-6 lg:px-20 bg-[#0e0e1a]">
-        <h2 className="text-3xl font-bold text-center mb-12 text-white">🌟 What Students Say</h2>
-        <div className="relative max-w-3xl mx-auto">
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={index}
-              className="bg-[#1a1a2e] p-8 rounded-xl border border-white/10 text-white"
-              initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: direction < 0 ? 300 : -300, opacity: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <p className="text-lg italic mb-4">“{testimonials[index].quote}”</p>
-              <p className="font-semibold">{testimonials[index].name}</p>
-              <p className="text-sm text-purple-300">{testimonials[index].role}</p>
-            </motion.div>
-          </AnimatePresence>
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={() => paginate(-1)}
-              className="text-purple-400 hover:text-purple-600 transition"
-            >
-              ← Previous
-            </button>
-            <button
-              onClick={() => paginate(1)}
-              className="text-purple-400 hover:text-purple-600 transition"
-            >
-              Next →
-            </button>
-          </div>
-        </div>
-      </section>
-
+      
       {/* CTA */}
       <section className="relative z-10 bg-[#12121c] py-20 px-6 lg:px-20 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-600/30 blur-[150px] rounded-full z-0" />
