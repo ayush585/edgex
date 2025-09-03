@@ -19,10 +19,11 @@ import {
 } from "firebase/auth";
 import { auth, db } from "../firebase";
 import ChatBubble from "../components/ChatBubble";
-import { SendHorizonal, Sun, Moon, PlusCircle, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { SendHorizonal, Sun, Moon, PlusCircle, User, Mail, Lock, Eye, EyeOff, X } from "lucide-react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import LoginModal from "../components/LoginModal";
 
 // The new ChatInput component with "Enter to Send" logic
 function ChatInput({ onSend, disabled }) {
@@ -85,7 +86,6 @@ function ChatInput({ onSend, disabled }) {
   );
 }
 
-
 const extractMemory = (text) => {
   const name = text.match(/(?:I am|My name is)\s+(\w+)/i)?.[1];
   const fav = text.match(/(?:I like|enjoy|love)\s+(.+?)(?=[.,]|$)/i)?.[1];
@@ -99,235 +99,7 @@ const extractMemory = (text) => {
   };
 };
 
-const LoginModal = ({ onLogin }) => {
-  const [isSignup, setIsSignup] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: ""
-  });
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const validateForm = () => {
-    const { fullName, email, password, confirmPassword } = formData;
-    if (isSignup) {
-      if (!fullName.trim()) return "Full Name is required.";
-      if (!/^[A-Za-z\s]+$/.test(fullName)) return "Full Name can only contain letters and spaces.";
-      if (password !== confirmPassword) return "Passwords do not match.";
-    }
-    if (!email || !/\S+@\S+\.\S+/.test(email)) return "Valid email is required.";
-    if (!password || password.length < 6) return "Password must be at least 6 characters.";
-    return null;
-  };
-
-  const handleAuth = async (e) => {
-    e.preventDefault();
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
-    setIsLoading(true);
-    setError("");
-
-    try {
-      let res;
-      if (isSignup) {
-        res = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-        await setDoc(doc(db, "users", res.user.uid), {
-          fullName: formData.fullName,
-          email: formData.email,
-          createdAt: serverTimestamp(),
-        });
-      } else {
-        res = await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      }
-      onLogin(res.user.uid);
-    } catch (err) {
-      const code = err.code;
-      if (code === "auth/email-already-in-use") {
-        setError("⚠️ Email already registered. Try logging in.");
-      } else if (code === "auth/invalid-email") {
-        setError("⚠️ Invalid email format.");
-      } else if (code === "auth/weak-password") {
-        setError("⚠️ Password too weak (min 6 characters).");
-      } else if (
-        code === "auth/user-not-found" ||
-        code === "auth/wrong-password"
-      ) {
-        setError("❌ Wrong email or password.");
-      } else {
-        setError("❌ " + err.message);
-      }
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
-    setError("");
-    setShowPassword(false);
-    setShowConfirmPassword(false);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900/95 backdrop-blur-md border border-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md space-y-6 relative overflow-hidden">
-        {/* Purple gradient background accent */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-purple-600/10 rounded-2xl"></div>
-
-        <div className="relative z-10">
-          {/* Header */}
-          <div className="text-center space-y-2 mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-purple-500 rounded-full mb-4">
-              <span className="text-2xl font-bold text-white">E</span>
-            </div>
-            <h2 className="text-2xl font-bold text-white">
-              {isSignup ? "Join EDGEx" : "Welcome Back"}
-            </h2>
-            <p className="text-gray-400 text-sm">
-              {isSignup
-                ? "Create your account to start your AI-powered learning journey"
-                : "Sign in to continue your learning journey"
-              }
-            </p>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div
-              className="px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2 border"
-              style={{
-                backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                borderColor: 'rgba(220, 38, 38, 0.3)',
-                color: '#ef4444'
-              }}
-            >
-              <span style={{ color: '#dc2626' }}>⚠️</span>
-              <span style={{ color: '#ef4444' }}>{error}</span>
-            </div>
-          )}
-
-
-          {/* Form */}
-          <form onSubmit={handleAuth} className="space-y-4">
-            {isSignup && (
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                  placeholder="Full Name"
-                  required
-                />
-              </div>
-            )}
-
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                placeholder="Email Address"
-                required
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 pr-12 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                placeholder="Password"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-
-            {isSignup && (
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 pr-12 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                  placeholder="Confirm Password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Processing...
-                </>
-              ) : (
-                isSignup ? "Create Account" : "Sign In"
-              )}
-            </button>
-          </form>
-
-          {/* Switch between login/signup */}
-          <div className="text-center pt-6 border-t border-gray-700/50">
-            <p className="text-gray-400 text-sm">
-              {isSignup ? "Already have an account?" : "New to EDGEx?"}{" "}
-              <button
-                onClick={() => {
-                  setIsSignup(!isSignup);
-                  resetForm();
-                }}
-                className="text-purple-400 font-semibold hover:text-purple-300 transition-colors hover:underline"
-              >
-                {isSignup ? "Sign In" : "Create Account"}
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-function CareerCrack() {
+function CareerCrack({ user }) {
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null);
   const [history, setHistory] = useState([]);
@@ -336,21 +108,25 @@ function CareerCrack() {
   const [useGroq, setUseGroq] = useState(true);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-        loadMemory(user.uid);
-        listenToHistory(user.uid);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+    if (user) {
+      setUserId(user.uid);
+      loadMemory(user.uid);
+      listenToHistory(user.uid);
+      setShowLoginModal(false);
+    } else {
+      setUserId(null);
+      setMessages([]);
+      setHistory([]);
+      setShowLoginModal(true);
+    }
+  }, [user]);
 
   const loadMemory = async (uid) => {
     const docRef = doc(db, "memory", uid);
@@ -363,6 +139,8 @@ function CareerCrack() {
           text: `👋 Welcome back, ${name}! I remember you like ${favSubject} and dream of becoming ${goal}.`,
         },
       ]);
+    } else {
+      setMessages([]);
     }
   };
 
@@ -384,7 +162,7 @@ function CareerCrack() {
   };
 
   const handleSend = async (text) => {
-    if (!text.trim()) return;
+    if (!text.trim() || !userId) return;
     setIsAiTyping(true);
     const userMsg = { role: "user", text: text };
     const typing = { role: "ai", text: "__typing__" };
@@ -392,105 +170,97 @@ function CareerCrack() {
     setMessages(currentChat);
 
     const systemPrompt = `
-    You are CareerCrack, an intelligent, empathetic, and professional career guidance assistant designed to help students explore career options, make informed decisions, and plan their academic and professional journeys.
+      You are CareerCrack, an intelligent, empathetic, and professional career guidance assistant designed to help students explore career options, make informed decisions, and plan their academic and professional journeys.
 
+      Your Role & Goals:
+        - Act as a career counselor for students.
+        - Provide guidance, resources, and advice about career paths, higher education, skill development, internships, and job opportunities.
+        - Adapt responses based on the student’s background, interests, and goals.
+        - Help students understand emerging industries, skill demands, and educational pathways.
+        - Stay encouraging, supportive, and non-judgmental in tone.
 
-    Your Role & Goals:
-      - Act as a career counselor for students.
-      - Provide guidance, resources, and advice about career paths, higher education, skill development, internships, and job opportunities.
-      - Adapt responses based on the student’s background, interests, and goals.
-      - Help students understand emerging industries, skill demands, and educational pathways.
-      - Stay encouraging, supportive, and non-judgmental in tone.
+      What You Can Do
+      1. Career Exploration
+        - Suggest career paths based on student’s interests, strengths, and aspirations.
+        - Explain roles in different industries (engineering, medicine, arts, business, IT, AI/ML, design, etc.).
+        - Provide information on future career trends.
 
+      2. Academic Guidance
+        - Recommend suitable courses, degrees, and certifications.
+        - Explain differences between educational streams (STEM, humanities, commerce, vocational, etc.).
+        - Advise on standardized tests, entrance exams, and scholarships.
 
-    What You Can Do
-    1. Career Exploration
-      - Suggest career paths based on student’s interests, strengths, and aspirations.
-      - Explain roles in different industries (engineering, medicine, arts, business, IT, AI/ML, design, etc.).
-      - Provide information on future career trends.
+      3. Skill Development
+        - Suggest relevant technical and soft skills.
+        - Recommend online learning resources (Coursera, edX, Udemy, free resources, etc.).
+        - Provide project or portfolio-building ideas.
 
-    2. Academic Guidance
-      - Recommend suitable courses, degrees, and certifications.
-      - Explain differences between educational streams (STEM, humanities, commerce, vocational, etc.).
-      - Advise on standardized tests, entrance exams, and scholarships.
+      4. Professional Growth
+        - Guidance on internships, resume building, networking, LinkedIn usage.
+        - Explain workplace skills (communication, teamwork, adaptability).
+        - Share strategies for career transitions.
 
-    3. Skill Development
-      - Suggest relevant technical and soft skills.
-      - Recommend online learning resources (Coursera, edX, Udemy, free resources, etc.).
-      - Provide project or portfolio-building ideas.
+      5. Decision-Making Support
+        - Help students compare multiple career options with pros/cons.
+        - Provide step-by-step pathways (short-term and long-term).
+        - Encourage self-reflection and informed choices rather than giving absolute answers.
 
-    4. Professional Growth
-      - Guidance on internships, resume building, networking, LinkedIn usage.
-      - Explain workplace skills (communication, teamwork, adaptability).
-      - Share strategies for career transitions.
+      What You Should Avoid
+        - Do not write or debug programming code (your role is guidance, not coding).
+        - Do not provide medical, financial, or legal advice.
+        - Do not guarantee job placement, exam success, or admission results.
+        - Do not share misinformation—if unsure, clarify or encourage further research.
+        - Avoid being dismissive, negative, or judgmental.
 
-    5. Decision-Making Support
-      - Help students compare multiple career options with pros/cons.
-      - Provide step-by-step pathways (short-term and long-term).
-      - Encourage self-reflection and informed choices rather than giving absolute answers.
+      Interaction Style
+        - Use simple, student-friendly language (avoid jargon unless explained).
+        - Be empathetic and motivational: acknowledge the student’s concerns and encourage them.
+        - Provide step-by-step explanations when guiding.
+        - Suggest actionable next steps (e.g., “You could start by taking an online course in Python” rather than vague advice).
 
-
-    What You Should Avoid
-      - Do not write or debug programming code (your role is guidance, not coding).
-      - Do not provide medical, financial, or legal advice.
-      - Do not guarantee job placement, exam success, or admission results.
-      - Do not share misinformation—if unsure, clarify or encourage further research.
-      - Avoid being dismissive, negative, or judgmental.
-
-
-    Interaction Style
-      - Use simple, student-friendly language (avoid jargon unless explained).
-      - Be empathetic and motivational: acknowledge the student’s concerns and encourage them.
-      - Provide step-by-step explanations when guiding.
-      - Suggest actionable next steps (e.g., “You could start by taking an online course in Python” rather than vague advice).
-
-
-    Extras
-      - Maintain a friendly tone.
-      - Always stick to your scope of replies, i.e, DO NOT reply to any other queries except those regarding career guidance. You don't have to be helpful for non relevant queries. Just reject the user and ask them to ask valid questions which are related to your field of expertise. You don't need to provide any tips too. Just say that you can't reply to that query and stop.
-      - You should NEVER write code at any cost.
-      - You shouldn't provide any guidance regarding coding queries
-      - You should NOT reply to any queries which are not related to career guidance. (for example, asking questions related to a code.)
-
+      Extras
+        - Maintain a friendly tone.
+        - Always stick to your scope of replies, i.e, DO NOT reply to any other queries except those regarding career guidance. You don't have to be helpful for non relevant queries. Just reject the user and ask them to ask valid questions which are related to your field of expertise. You don't need to provide any tips too. Just say that you can't reply to that query and stop.
+        - You should NEVER write code at any cost.
+        - You shouldn't provide any guidance regarding coding queries
+        - You should NOT reply to any queries which are not related to career guidance. (for example, asking questions related to a code.)
 
       EXAMPLES
       <RELEVANT REQUESTS>
       1. Student: I want to get into Data Science. Where should I start?
-         Chatbot: That’s an exciting field! 🚀 A step-by-step path would be:
-          - Math & Stats – Brush up on probability, linear algebra, and statistics.
-          - Programming – Start with Python (most beginner-friendly).
-          - Data Handling – Learn Pandas, NumPy, and SQL for data analysis.
-          - Visualization – Tools like Matplotlib, Seaborn, or Tableau.
-          - Machine Learning Basics – Understand regression, classification, clustering.
+        - Chatbot: That’s an exciting field! 🚀 A step-by-step path would be:
+        - Math & Stats – Brush up on probability, linear algebra, and statistics.
+        - Programming – Start with Python (most beginner-friendly).
+        - Data Handling – Learn Pandas, NumPy, and SQL for data analysis.
+        - Visualization – Tools like Matplotlib, Seaborn, or Tableau.
+        - Machine Learning Basics – Understand regression, classification, clustering.
 
-          Free resources you could check:
-          - Kaggle (hands-on datasets & competitions)
-          - Coursera: Data Science Specialization
-          - YouTube: Krish Naik, Data School
+        Free resources you could check:
+        - Kaggle (hands-on datasets & competitions)
+        - Coursera: Data Science Specialization
+        - YouTube: Krish Naik, Data School
 
-          Would you like me to suggest a 3-month learning plan to kickstart your journey?
-
+        Would you like me to suggest a 3-month learning plan to kickstart your journey?
 
       2. Student: I’m in Class 11 and I really like biology, but I’m not sure if I should go for medicine.
-         Chatbot: That’s great! Enjoying biology opens up many possibilities beyond medicine. 😊
-          - If you like research, you could explore biotechnology, genetics, or bioinformatics.
-          - If you enjoy helping people directly, medicine, nursing, or physiotherapy could be a fit.
-          - If you’re curious about environment & sustainability, fields like environmental biology or agricultural sciences are options.
-          Would you like me to give you a roadmap for medical vs. non-medical biology careers so you can compare them clearly?
-
+        - Chatbot: That’s great! Enjoying biology opens up many possibilities beyond medicine. 😊
+        - If you like research, you could explore biotechnology, genetics, or bioinformatics.
+        - If you enjoy helping people directly, medicine, nursing, or physiotherapy could be a fit.
+        - If you’re curious about environment & sustainability, fields like environmental biology or agricultural sciences are options.
+        - Would you like me to give you a roadmap for medical vs. non-medical biology careers so you can compare them clearly?
 
       <IRRELEVANT REQUESTS>
       3. Student: Can you write me a C++ program for factorial?
-         Chatbot: I’m not here to write code for you—but if you’re interested in programming, that’s a great career skill!
-         Would you like me to guide you on how to start with C++ and the kinds of careers (like Software Engineering, Game Development, AI) where it’s really useful?
+        - Chatbot: I’m not here to write code for you—but if you’re interested in programming, that’s a great career skill!
+        - Would you like me to guide you on how to start with C++ and the kinds of careers (like Software Engineering, Game Development, AI) where it’s really useful?
 
       4. Student: Can you tell me how to win in Valorant?
-         Chatbot: Haha, sounds fun! But I focus only on career and academic guidance.
-         If you’re passionate about gaming, though, I can show you career options in Game Design, Esports, and Game Development. Do you want me to share those?
+        - Chatbot: Haha, sounds fun! But I focus only on career and academic guidance.
+        - If you’re passionate about gaming, though, I can show you career options in Game Design, Esports, and Game Development. Do you want me to share those?
 
       5. Student: Bro, I don’t know how to talk to my girlfriend. Can you give me tips?
-         Chatbot: Relationships are very personal, and I might not be the best fit to guide you there.
-         But if you’re asking because you’re worried about balancing personal life with studies and career, I can definitely help you with time management and stress balance strategies. Want me to suggest some techniques?
+        - Chatbot: Relationships are very personal, and I might not be the best fit to guide you there.
+        - But if you’re asking because you’re worried about balancing personal life with studies and career, I can definitely help you with time management and stress balance strategies. Want me to suggest some techniques?
     `
 
     try {
@@ -533,7 +303,7 @@ function CareerCrack() {
         { role: "ai", text: "⚠️ Something went wrong. Try again!" },
       ]);
     } finally {
-        setIsAiTyping(false);
+      setIsAiTyping(false);
     }
   };
 
@@ -561,170 +331,161 @@ function CareerCrack() {
     }
   };
 
- 
+  // Simple bar chart drawer using jsPDF graphics
+  const drawSimpleBarChart = (doc, data, labels, x, y, width, height, maxVal) => {
+    if (!data || data.length === 0) return;
+    if (!labels || labels.length !== data.length) {
+      console.error('Chart data and labels must have the same length');
+      return;
+    }
+    if (maxVal <= 0) maxVal = Math.max(...data, 1);
 
-  
-// Simple bar chart drawer using jsPDF graphics
-const drawSimpleBarChart = (doc, data, labels, x, y, width, height, maxVal) => {
-  if (!data || data.length === 0) return;
-  if (!labels || labels.length !== data.length) {
-    console.error('Chart data and labels must have the same length');
-    return;
-  }
-  if (maxVal <= 0) maxVal = Math.max(...data, 1);
+    const barWidth = (width / data.length) * 0.6;
+    const gap = (width / data.length) * 0.4;
 
-  const barWidth = (width / data.length) * 0.6;
-  const gap = (width / data.length) * 0.4;
+    doc.setFillColor("#7E57C2"); // Purple bars
+    doc.setDrawColor("#5E35B1");
+    doc.setLineWidth(0.8);
 
-  doc.setFillColor("#7E57C2"); // Purple bars
-  doc.setDrawColor("#5E35B1");
-  doc.setLineWidth(0.8);
+    data.forEach((val, i) => {
+      const barHeight = (val / maxVal) * height;
+      const xPos = x + i * (barWidth + gap);
+      const yPos = y + height - barHeight;
 
-  data.forEach((val, i) => {
-    const barHeight = (val / maxVal) * height;
-    const xPos = x + i * (barWidth + gap);
-    const yPos = y + height - barHeight;
+      doc.roundedRect(xPos, yPos, barWidth, barHeight, 3, 3, "F");
 
-    doc.roundedRect(xPos, yPos, barWidth, barHeight, 3, 3, "F");
+      // Label centered below each bar
+      doc.setFontSize(9);
+      doc.setTextColor("#333");
+      const labelWidth = doc.getTextWidth(labels[i]);
+      doc.text(labels[i], xPos + barWidth / 2 - labelWidth / 2, y + height + 12);
+    });
 
-    // Label centered below each bar
-    doc.setFontSize(9);
-    doc.setTextColor("#333");
-    const labelWidth = doc.getTextWidth(labels[i]);
-    doc.text(labels[i], xPos + barWidth / 2 - labelWidth / 2, y + height + 12);
-  });
-
-  // Chart border
-  doc.setDrawColor("#AAA");
-  doc.rect(x, y, width, height);
-};
-
-const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
-  try {
-  const mem = userMemory || { name: "friend", favSubject: "design", goal: "designer" };
-  const {
-    recommendedCareers = ["Software Engineer", "Designer"],
-    keySkills = ["Problem Solving", "Collaboration"],
-    nextSteps = ["Take online course", "Build projects"],
-    skillFitScores = [80, 65, 90],
-    skillFitLabels = ["Coding", "Communication", "Creativity"],
-  } = aiSuggestions || {};
-
-  const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
-
-  // ----- TITLE & HEADER BAR -----
-  const pageWidth = doc.internal.pageSize.getWidth();
-  doc.setFillColor("#7E57C2");
-  doc.rect(0, 0, pageWidth, 60, "F");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(24);
-  doc.setTextColor("#FFFFFF");
-  doc.text("Your Career Report", 40, 40);
-
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
-  doc.text("powered by Edgex", 40, 55);
-
-  // ----- USER INFO SECTION -----
-  let y = 90;
-  doc.setFillColor("#F3E5F5"); // Light purple background
-  doc.roundedRect(40, y - 20, pageWidth - 80, 80, 10, 10, "F");
-
-  doc.setTextColor("#4A148C");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("User Information", 50, y);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
-  doc.setTextColor("#333333");
-  doc.text(`Name: ${mem.name}`, 50, y + 30);
-  doc.text(`Dream Career: ${mem.goal}`, 50, y + 50);
-  doc.text(`Favorite Subject: ${mem.favSubject}`, 280, y + 30);
-
-  // ----- AI SUGGESTIONS SECTION -----
-  y += 100;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor("#5E35B1");
-  doc.text("AI Suggestions", 40, y);
-
-  y += 10;
-
-  // Common table styles
-  const tableOptionsBase = {
-    startY: y,
-    margin: { left: 40, right: 40 },
-    headStyles: { fillColor: "#CE93D8", textColor: "#4A148C", fontStyle: "bold" },
-    styles: { fontSize: 11, cellPadding: 6 },
+    // Chart border
+    doc.setDrawColor("#AAA");
+    doc.rect(x, y, width, height);
   };
 
-  // Recommended Careers
-  autoTable(doc, {
-    ...tableOptionsBase,
-    head: [["Recommended Career Fields"]],
-    body: recommendedCareers.map((career) => [career]),
-  });
+  const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
+    try {
+      const mem = userMemory || { name: "friend", favSubject: "design", goal: "designer" };
+      const {
+        recommendedCareers = ["Software Engineer", "Designer"],
+        keySkills = ["Problem Solving", "Collaboration"],
+        nextSteps = ["Take online course", "Build projects"],
+        skillFitScores = [80, 65, 90],
+        skillFitLabels = ["Coding", "Communication", "Creativity"],
+      } = aiSuggestions || {};
 
-  y = doc.lastAutoTable.finalY + 15;
+      const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
 
-  // Key Skills
-  autoTable(doc, {
-    ...tableOptionsBase,
-    startY: y,
-    head: [["Key Skills to Learn"]],
-    body: keySkills.map((skill) => [skill]),
-  });
+      // ----- TITLE & HEADER BAR -----
+      const pageWidth = doc.internal.pageSize.getWidth();
+      doc.setFillColor("#7E57C2");
+      doc.rect(0, 0, pageWidth, 60, "F");
 
-  y = doc.lastAutoTable.finalY + 15;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(24);
+      doc.setTextColor("#FFFFFF");
+      doc.text("Your Career Report", 40, 40);
 
-  // Actionable Next Steps
-  autoTable(doc, {
-    ...tableOptionsBase,
-    startY: y,
-    head: [["Actionable Next Steps"]],
-    body: nextSteps.map((step) => [step]),
-  });
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text("powered by Edgex", 40, 55);
 
-  // ----- OPTIONAL SIMPLE BAR CHART -----
-  y = doc.lastAutoTable.finalY + 40;
+      // ----- USER INFO SECTION -----
+      let y = 90;
+      doc.setFillColor("#F3E5F5"); // Light purple background
+      doc.roundedRect(40, y - 20, pageWidth - 80, 80, 10, 10, "F");
 
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor("#5E35B1");
-  doc.text("Skill Fit Overview", 40, y - 10);
+      doc.setTextColor("#4A148C");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("User Information", 50, y);
 
-  const chartWidth = pageWidth - 80;
-  const chartHeight = 100;
-  const maxScore = Math.max(...skillFitScores, 100);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor("#333333");
+      doc.text(`Name: ${mem.name}`, 50, y + 30);
+      doc.text(`Dream Career: ${mem.goal}`, 50, y + 50);
+      doc.text(`Favorite Subject: ${mem.favSubject}`, 280, y + 30);
 
-  drawSimpleBarChart(doc, skillFitScores, skillFitLabels, 40, y, chartWidth, chartHeight, maxScore);
+      // ----- AI SUGGESTIONS SECTION -----
+      y += 100;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor("#5E35B1");
+      doc.text("AI Suggestions", 40, y);
 
-  // ----- MOTIVATIONAL FOOTER -----
-  doc.setFontSize(10);
-  doc.setTextColor("#888888");
-  doc.text("Dream big! - Team Edgex", 40, 780);
+      y += 10;
 
-  // ----- SAVE PDF -----
-  doc.save("Career_Report.pdf");
-  } catch (error) {
-  console.error("Failed to generate PDF:", error);
-  // Consider showing a user-friendly error message
-   alert("Failed to generate PDF. Please try again.");
- }
-};
+      // Common table styles
+      const tableOptionsBase = {
+        startY: y,
+        margin: { left: 40, right: 40 },
+        headStyles: { fillColor: "#CE93D8", textColor: "#4A148C", fontStyle: "bold" },
+        styles: { fontSize: 11, cellPadding: 6 },
+      };
 
+      // Recommended Careers
+      autoTable(doc, {
+        ...tableOptionsBase,
+        head: [["Recommended Career Fields"]],
+        body: recommendedCareers.map((career) => [career]),
+      });
 
+      y = doc.lastAutoTable.finalY + 15;
 
+      // Key Skills
+      autoTable(doc, {
+        ...tableOptionsBase,
+        startY: y,
+        head: [["Key Skills to Learn"]],
+        body: keySkills.map((skill) => [skill]),
+      });
 
+      y = doc.lastAutoTable.finalY + 15;
 
-  if (!userId) return <LoginModal onLogin={setUserId} />;
+      // Actionable Next Steps
+      autoTable(doc, {
+        ...tableOptionsBase,
+        startY: y,
+        head: [["Actionable Next Steps"]],
+        body: nextSteps.map((step) => [step]),
+      });
+
+      // ----- OPTIONAL SIMPLE BAR CHART -----
+      y = doc.lastAutoTable.finalY + 40;
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor("#5E35B1");
+      doc.text("Skill Fit Overview", 40, y - 10);
+
+      const chartWidth = pageWidth - 80;
+      const chartHeight = 100;
+      const maxScore = Math.max(...skillFitScores, 100);
+
+      drawSimpleBarChart(doc, skillFitScores, skillFitLabels, 40, y, chartWidth, chartHeight, maxScore);
+
+      // ----- MOTIVATIONAL FOOTER -----
+      doc.setFontSize(10);
+      doc.setTextColor("#888888");
+      doc.text("Dream big! - Team Edgex", 40, 780);
+
+      // ----- SAVE PDF -----
+      doc.save("Career_Report.pdf");
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      // Consider showing a user-friendly error message
+      alert("Failed to generate PDF. Please try again.");
+    }
+  };
 
   return (
     <div className={`${darkMode ? "dark" : ""}`}>
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
       <div className="flex min-h-screen bg-gradient-to-br from-[#ffe0ec] via-[#f8bbd0] to-[#f3d1f4] dark:from-[#2a004f] dark:via-[#3c1361] dark:to-[#1b0032] text-gray-900 dark:text-white font-[Poppins] transition-all duration-500 ease-in-out">
-
         {/* Sidebar */}
         <div className="w-64 bg-white/60 dark:bg-[#30104d]/60 backdrop-blur-xl border-r border-white/20 p-4 space-y-4 shadow-xl rounded-tr-3xl rounded-br-3xl transition-all duration-500">
           <div className="flex justify-between items-center mb-2">
@@ -737,7 +498,8 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
               >
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <button
+              {/* The logout button is now removed as per the request */}
+              {/* <button
                 onClick={() => {
                   signOut(auth).then(() => setUserId(null));
                 }}
@@ -745,7 +507,7 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
                 title="Logout"
               >
                 ↩ Logout
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -765,7 +527,7 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
               setMessages([]);
               setSelectedChatId(null);
             }}
-            className="flex items-center gap-2 text-sm bg-gradient-to-r from-pink-500 via-purple-500 to-fuchsia-500 text-white w-full py-2 px-3 rounded-full hover:scale-105 shadow-xl transition-all duration-300"
+            className="flex items-center gap-2 text-sm bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500 text-white w-full py-2 px-3 rounded-full hover:scale-105 shadow-xl transition-all duration-300"
           >
             <PlusCircle size={16} /> New Chat
           </button>
@@ -810,7 +572,7 @@ const exportChatToPDF = async (userId, userMemory, aiSuggestions) => {
           </div>
 
           <div className="mt-4">
-             <ChatInput onSend={handleSend} disabled={isAiTyping} />
+            <ChatInput onSend={handleSend} disabled={isAiTyping} />
           </div>
 
           <button
