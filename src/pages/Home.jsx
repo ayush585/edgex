@@ -1,14 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
-import {FaGithub }from "react-icons/fa";
-import {FaLinkedin }from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
+import { FaLinkedin } from "react-icons/fa";
 import {
   motion,
   useScroll,
   useTransform,
   AnimatePresence,
-  easeInOut,
 } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   GraduationCap,
@@ -20,9 +19,10 @@ import {
   BookOpen,
 } from "lucide-react";
 
-function Home() {
+function Home({ user }) {
   const [loading, setLoading] = useState(true);
   const countersRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1500);
@@ -102,15 +102,14 @@ function Home() {
   const { scrollYProgress } = useScroll();
   const y1 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
-    const counters = [
+  const counters = [
     { label: "Students Helped", value: 5700 },
     { label: "Scholarships Found", value: 1300 },
     { label: "Mood Sessions", value: 25000 },
   ];
-  const [counts, setCounts] = useState(counters.map(() => 1)); // Start from 1 instead of 0
+  const [counts, setCounts] = useState(counters.map(() => 1));
   const [isAnimating, setIsAnimating] = useState(false);
-   
-  // Custom scroll detection for counters - triggers only when actively scrolling to section
+  
   useEffect(() => {
     let lastScrollTop = 0;
     let scrollTimeout = null;
@@ -123,37 +122,28 @@ function Home() {
       const rect = countersRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       
-      // Clear previous timeout
       if (scrollTimeout) {
         clearTimeout(scrollTimeout);
       }
       
-      // Only trigger when section is 50% visible AND user is actively scrolling
       if (rect.top <= windowHeight * 0.5 && rect.bottom >= windowHeight * 0.5) {
-        // Check if user is actually scrolling (not just the section being in view)
         const isScrolling = Math.abs(currentScrollTop - lastScrollTop) > 10;
         
-                 if (isScrolling && !hasTriggered) {
-           hasTriggered = true;
+        if (isScrolling && !hasTriggered) {
+          hasTriggered = true;
           startCounterAnimation();
           
-          // Reset trigger flag after animation completes
           setTimeout(() => {
             hasTriggered = false;
-          }, 3000); // 3 seconds total (2s animation + 1s delay)
+          }, 3000);
         }
-
       }
       
       lastScrollTop = currentScrollTop;
       
-      // Set a timeout to prevent rapid firing
-      scrollTimeout = setTimeout(() => {
-        // This ensures we don't trigger multiple times for the same scroll
-      }, 150);
+      scrollTimeout = setTimeout(() => {}, 150);
     };
 
-    // Check on mount and scroll
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     
@@ -163,19 +153,14 @@ function Home() {
     };
   }, [isAnimating]);
 
-  // Separate function to start counter animation
   const startCounterAnimation = () => {
     if (isAnimating) return;
     
-    
     setIsAnimating(true);
-    
-    // Reset counts to 1
     setCounts(counters.map(() => 1));
     
-    // Start the counter animation
-    const duration = 2000; // 2 seconds total
-    const steps = 60; // 60 steps for smooth animation
+    const duration = 2000;
+    const steps = 60;
     const stepDuration = duration / steps;
     
     let currentStep = 0;
@@ -191,20 +176,24 @@ function Home() {
           return Math.min(currentValue, target);
         });
         
-        // Check if animation is complete
         if (currentStep >= steps) {
           clearInterval(animate);
-          console.log("Final counts:", newCounts);
-          
-          // Add a longer delay before allowing next animation
           setTimeout(() => {
-            setIsAnimating(false); // Allow next animation to trigger
-          }, 10000); // 1 second delay to prevent accidental restarts
+            setIsAnimating(false);
+          }, 10000);
         }
         
         return newCounts;
       });
     }, stepDuration);
+  };
+  
+  const handleStartExploring = () => {
+    if (user) {
+      navigate('/careercrack');
+    } else {
+      navigate('/login');
+    }
   };
 
   if (loading) {
@@ -253,13 +242,13 @@ function Home() {
           <p className="text-lg text-gray-300 mb-8">
             Your all-in-one AI toolkit: career mentor, mood companion, scholarship tracker & more.
           </p>
-          <div className="flex justify-center items-center  gap-4">
-            <Link
-              to="/careercrack"
+          <div className="flex justify-center items-center gap-4">
+            <button
+              onClick={handleStartExploring}
               className="bg-purple-600 hover:bg-purple-700 transition px-6 py-3 rounded-lg text-white font-semibold flex items-center gap-2"
             >
               Start Exploring <ArrowRight size={18} />
-            </Link>
+            </button>
             <a href="#features" className="text-gray-400 hover:text-white underline flex items-center h-full px-6 py-3 rounded-lg font-semibold">
               Learn More
             </a>
@@ -267,7 +256,6 @@ function Home() {
         </motion.div>
       </section>
 
-      {/* Features */}
       <section id="features" className="py-20 px-6 lg:px-20 bg-[#0e0e1a]">
         <h2 className="text-3xl font-bold text-center mb-12 text-white">What can EDGEx AI do?</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto text-white">
@@ -280,7 +268,7 @@ function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3}}
                 viewport={{ once: true }}
-                className="bg-glass backdrop-blur-md p-6 rounded-xl border border-white/10 transition-[box-shadow,colors] duration-300  cursor-pointer flex flex-col justify-between h-full hover:shadow-2xl hover:border-white/20 hover:bg-white/5"
+                className="bg-glass backdrop-blur-md p-6 rounded-xl border border-white/10 transition-[box-shadow,colors] duration-300 cursor-pointer flex flex-col justify-between h-full hover:shadow-2xl hover:border-white/20 hover:bg-white/5"
               >
                 <div className="flex items-center gap-3 mb-3">
                   {feat.icon}
@@ -300,10 +288,9 @@ function Home() {
         </div>
       </section>
 
-      {/* Counters */}
       <section ref={countersRef} className="py-20 bg-[#0a0a14] text-center">
         <h2 className="text-3xl font-bold text-white mb-12">
-           Our Impact So Far 🚀
+            Our Impact So Far 🚀
         </h2>
         {!isAnimating && (
           <div className="mb-6">
@@ -340,9 +327,9 @@ function Home() {
             >
               <p className="text-4xl font-bold text-purple-400">
                 {counts[i].toLocaleString()}+
-                                 {isAnimating && counts[i] === 1 && (
-                   <span className="text-green-400 text-sm ml-2">→ Starting...</span>
-                 )}
+                {isAnimating && counts[i] === 1 && (
+                  <span className="text-green-400 text-sm ml-2">→ Starting...</span>
+                )}
               </p>
               <p className="text-gray-400 mt-2">{item.label}</p>
             </motion.div>
@@ -350,7 +337,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
       <section className="py-24 px-6 lg:px-20 bg-[#0e0e1a]">
         <h2 className="text-3xl font-bold text-center mb-12 text-white">🌟 What Students Say</h2>
         <div className="relative max-w-3xl mx-auto">
@@ -385,7 +371,6 @@ function Home() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="relative z-10 bg-[#12121c] py-20 px-6 lg:px-20 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-600/30 blur-[150px] rounded-full z-0" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-indigo-500/20 blur-[120px] rounded-full z-0" />
@@ -411,38 +396,35 @@ function Home() {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            <Link
-              to="/careercrack"
+            <button
+              onClick={handleStartExploring}
               className="inline-block bg-purple-600 hover:bg-purple-700 transition px-8 py-3 text-lg font-semibold rounded-lg text-white shadow-xl"
             >
               Start Now →
-            </Link>
+            </button>
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      {/* Added horizontal padding to footer for better spacing */}
       <footer className="py-8  text-gray-500 text-sm px-8 lg:px-20 ">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center ">
-           © {new Date().getFullYear()} EDGEx by Ayushman. All rights reserved.
-         
-           <div className="flex  space-x-4 text-purple-400 text-3xl ">
-            <a href="https://github.com/ayush585/edgex" target="_blank" 
-               className="hover:text-purple-200 transition"> 
+            © {new Date().getFullYear()} EDGEx by Ayushman. All rights reserved.
+          
+            <div className="flex  space-x-4 text-purple-400 text-3xl ">
+             <a href="https://github.com/ayush585/edgex" target="_blank" 
+                className="hover:text-purple-200 transition"> 
                 <FaGithub/>
               </a>
 
               <a href="https://www.linkedin.com/in/ayushman-mukherjee-437a49314/" target="_blank" 
-                   className="hover:text-purple-200 transition"> 
+                     className="hover:text-purple-200 transition"> 
                 <FaLinkedin/>
               </a>
-           </div>
-         </div>
+            </div>
+          </div>
       </footer>
     </div>
   );
 }
 
 export default Home;
-
