@@ -20,8 +20,7 @@ async function loadModel() {
       });
       console.log("✅ Whisper model loaded successfully.");
     } catch (err) {
-      console.error("❌ Failed to load model:", err);
-      alert("⚠️ Failed to load Whisper model. Ensure correct files exist in public/models/whisper-tiny/");
+      
     }
   }
   return transcriber;
