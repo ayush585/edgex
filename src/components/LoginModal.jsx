@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  updatePassword,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -15,19 +17,27 @@ import {
   UserPlus,
   LogIn,
   X,
+  ArrowLeft,
+  Key,
 } from 'lucide-react';
 
 const LoginModal = ({ onClose }) => {
   const [isSignup, setIsSignup] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const modalRef = useRef();
@@ -57,6 +67,13 @@ const LoginModal = ({ onClose }) => {
 
   const validateForm = () => {
     const { fullName, email, password, confirmPassword } = formData;
+    
+    if (showForgotPassword) {
+      if (!email || !/\S+@\S+\.\S+/.test(email))
+        return 'Valid email is required.';
+      return null;
+    }
+    
     if (isSignup) {
       if (!fullName.trim()) return 'Full Name is required.';
       if (!/^[A-Za-z\s]+$/.test(fullName))
@@ -70,6 +87,39 @@ const LoginModal = ({ onClose }) => {
     return null;
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      // Send password reset email
+      await sendPasswordResetEmail(auth, formData.email);
+      setSuccess('✅ Password reset email sent! Check your inbox and follow the instructions to reset your password.');
+      setTimeout(() => {
+        setShowForgotPassword(false);
+        resetForm();
+      }, 3000);
+    } catch (err) {
+      if (err.code === 'auth/user-not-found') {
+        setError('❌ No account found with this email address.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('❌ Invalid email address.');
+      } else {
+        setError('❌ ' + err.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAuth = async (e) => {
     e.preventDefault();
     const validationError = validateForm();
@@ -80,6 +130,7 @@ const LoginModal = ({ onClose }) => {
 
     setIsLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       let res;
@@ -121,10 +172,20 @@ const LoginModal = ({ onClose }) => {
   };
 
   const resetForm = () => {
-    setFormData({ fullName: '', email: '', password: '', confirmPassword: '' });
+    setFormData({ 
+      fullName: '', 
+      email: '', 
+      password: '', 
+      confirmPassword: '',
+      newPassword: '',
+      confirmNewPassword: ''
+    });
     setError('');
+    setSuccess('');
     setShowPassword(false);
     setShowConfirmPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmNewPassword(false);
   };
   
   const handleClose = () => {
@@ -154,10 +215,12 @@ const LoginModal = ({ onClose }) => {
               <span className="text-2xl font-bold text-white">E</span>
             </div>
             <h2 className="text-2xl font-bold text-white">
-              {isSignup ? 'Join EDGEx' : 'Welcome Back'}
+              {showForgotPassword ? 'Reset Password' : isSignup ? 'Join EDGEx' : 'Welcome Back'}
             </h2>
             <p className="text-gray-400 text-sm">
-              {isSignup
+              {showForgotPassword
+                ? 'Enter your email and new password to reset your account'
+                : isSignup
                 ? 'Create your account to start your AI-powered learning journey'
                 : 'Sign in to continue your learning journey'}
             </p>
@@ -175,111 +238,185 @@ const LoginModal = ({ onClose }) => {
               <span style={{ color: '#ef4444' }}>{error}</span>
             </div>
           )}
-          <form onSubmit={handleAuth} className="space-y-4">
-            {isSignup && (
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                  placeholder="Full Name"
-                  required
-                />
-              </div>
-            )}
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                placeholder="Email Address"
-                required
-              />
+          {success && (
+            <div
+              className="px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2 border"
+              style={{
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                borderColor: 'rgba(34, 197, 94, 0.3)',
+                color: '#22c55e',
+              }}
+            >
+              <span style={{ color: '#16a34a' }}>✅</span>
+              <span style={{ color: '#22c55e' }}>{success}</span>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 pr-12 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                placeholder="Password"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-            {isSignup && (
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 pr-12 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
-                  placeholder="Confirm Password"
-                  required
-                />
+          )}
+          <form onSubmit={showForgotPassword ? handleForgotPassword : handleAuth} className="space-y-4">
+            {showForgotPassword ? (
+              <>
+                {/* Forgot Password Form */}
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
+                    placeholder="Enter your email address"
+                    required
+                  />
+                </div>
                 <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Sending Reset Email...
+                    </>
                   ) : (
-                    <Eye className="w-5 h-5" />
+                    'Send Reset Email'
                   )}
                 </button>
-              </div>
+              </>
+            ) : (
+              <>
+                {/* Regular Login/Signup Form */}
+                {isSignup && (
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleChange}
+                      className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
+                      placeholder="Full Name"
+                      required
+                    />
+                  </div>
+                )}
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
+                    placeholder="Email Address"
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 pr-12 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
+                    placeholder="Password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {isSignup && (
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="w-full bg-gray-800/50 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 px-10 pr-12 py-3 rounded-lg text-white placeholder-gray-400 transition-all duration-200 outline-none"
+                      placeholder="Confirm Password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Processing...
+                    </>
+                  ) : isSignup ? (
+                    'Create Account'
+                  ) : (
+                    'Sign In'
+                  )}
+                </button>
+              </>
             )}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Processing...
-                </>
-              ) : isSignup ? (
-                'Create Account'
-              ) : (
-                'Sign In'
-              )}
-            </button>
           </form>
-          <div className="text-center pt-6 border-t border-gray-700/50">
-            <p className="text-gray-400 text-sm">
-              {isSignup ? 'Already have an account?' : 'New to EDGEx?'}{' '}
+          <div className="text-center pt-6 border-t border-gray-700/50 space-y-3">
+            {showForgotPassword ? (
               <button
                 onClick={() => {
-                  setIsSignup(!isSignup);
+                  setShowForgotPassword(false);
                   resetForm();
                 }}
-                className="text-purple-400 font-semibold hover:text-purple-300 transition-colors hover:underline"
+                className="flex items-center justify-center gap-2 text-purple-400 font-semibold hover:text-purple-300 transition-colors hover:underline mx-auto"
               >
-                {isSignup ? 'Sign In' : 'Create Account'}
+                <ArrowLeft className="w-4 h-4" />
+                Back to Sign In
               </button>
-            </p>
+            ) : (
+              <>
+                {!isSignup && (
+                  <button
+                    onClick={() => {
+                      setShowForgotPassword(true);
+                      resetForm();
+                    }}
+                    className="text-purple-400 font-semibold hover:text-purple-300 transition-colors hover:underline text-sm"
+                  >
+                    Forgot Password?
+                  </button>
+                )}
+                <p className="text-gray-400 text-sm">
+                  {isSignup ? 'Already have an account?' : 'New to EDGEx?'}{' '}
+                  <button
+                    onClick={() => {
+                      setIsSignup(!isSignup);
+                      resetForm();
+                    }}
+                    className="text-purple-400 font-semibold hover:text-purple-300 transition-colors hover:underline"
+                  >
+                    {isSignup ? 'Sign In' : 'Create Account'}
+                  </button>
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
