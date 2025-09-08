@@ -52,5 +52,15 @@ Make sure your pull request:
 - [ ] ✅ Passes all CI checks
 
 ---
+### 🏆 GSSoC 2025 Contribution Guidelines
 
+This project is part of **GirlScript Summer of Code 2025**. Every valid contribution counts toward your leaderboard score!
+
+To ensure your contributions qualify:
+- Follow all guidelines and coding standards
+- Only submit meaningful PRs that solve approved issues
+- Avoid spamming or duplicate PRs — quality over quantity!
+- Engage respectfully with maintainers and fellow contributors
+
+---
 
