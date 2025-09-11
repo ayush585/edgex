@@ -202,7 +202,7 @@ const LoginModal = ({ onClose }) => {
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white transition-colors duration-200"
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white transition-colors duration-200 cursor-pointer z-40"
           title="Go back"
         >
           <X className="w-6 h-6" />
