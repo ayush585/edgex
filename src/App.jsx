@@ -9,6 +9,7 @@ import ScholarshipScout from './pages/ScholarshipScout';
 import SmartNotes from './pages/SmartNotes';
 import VoiceFeedback from './pages/VoiceFeedback';
 import Home from './pages/Home';
+import ResumeAnalyzer from './pages/ResumeAnalyzer';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import LoginModal from './components/LoginModal';
 
@@ -49,6 +50,7 @@ function App() {
             <Route path="/scholarships" element={<ScholarshipScout />} />
             <Route path="/smartnotes" element={<SmartNotes />} />
             <Route path="/voicefeedback" element={<VoiceFeedback user={user} />} />
+            <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
             <Route
               path="/resourcevault"
               element={

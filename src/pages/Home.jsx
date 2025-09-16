@@ -67,6 +67,12 @@ function Home({ user }) {
       link: "/careercrack"
     },
     {
+      title: "Resume Analyzer",
+      desc: "Upload your resume for an ATS score and improvement tips.",
+      icon: <FileText className="w-6 h-6 text-purple-400" />,
+      link: "/resume-analyzer"
+    },
+    {
       title: "Resource Vault",
       desc: "Discover, upvote, and manage useful resources together.",
       icon: <BookOpen className="w-6 h-6 text-purple-400" />,
