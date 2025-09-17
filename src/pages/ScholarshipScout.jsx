@@ -3,6 +3,7 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { ArrowRightCircle } from "lucide-react";
 import scholarshipsData from "../data/scholarships.json";
+import { toast } from "react-toastify";
 
 export default function ScholarshipScout() {
   const [profile, setProfile] = useState({
@@ -114,6 +115,7 @@ Why it's a good match.
       setMatches(chunks);
     } catch (err) {
       console.error("AI error, using fallback:", err);
+      toast.error("Failed to fetch scholarship recommendations. Showing fallback data.");
       const fallback = filtered.map(
         (s) =>
           `**${s.name}**\nDeadline: **${s.deadline}**\n🔗 [Apply here](${s.url})`

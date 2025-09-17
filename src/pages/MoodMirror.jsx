@@ -13,6 +13,7 @@ import ChatBubble from "../components/ChatBubble";
 import { PlusCircle, Moon, Sun } from "lucide-react"; // removed SendHorizonal (handled by ChatInput now)
 import axios from "axios";
 import jsPDF from "jspdf";
+import { toast } from "react-toastify";
 
 // ✅ Import ChatInput component
 import ChatInput from "../components/chat/ChatInput";
@@ -154,6 +155,7 @@ function MoodMirror() {
       await saveChat(finalChat);
     } catch (err) {
       console.error("Groq error:", err);
+      toast.error("Failed to get response. Please try again.");
       setMessages((prev) => [
         ...prev.slice(0, -1),
         { role: "ai", text: "⚠️ Something went wrong. Try again!" },

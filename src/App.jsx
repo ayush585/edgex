@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar';
 import CareerCrack from './pages/CareerCrack';
 import MoodMirror from './pages/MoodMirror';
@@ -64,6 +66,7 @@ function App() {
         </main>
 
         <ScrollToTopButton />
+        <ToastContainer />
       </div>
     </Router>
   );

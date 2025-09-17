@@ -6,6 +6,7 @@ import { pipeline } from "@xenova/transformers";
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { toast } from "react-toastify";
 
 let transcriber = null;
 
@@ -20,7 +21,7 @@ async function loadModel() {
       });
       console.log("✅ Whisper model loaded successfully.");
     } catch (err) {
-      
+      toast.error("Failed to load Whisper model.");
     }
   }
   return transcriber;
@@ -59,7 +60,7 @@ export default function VoiceFeedback() {
       setWaveform(true);
     } catch (err) {
       console.error("🎙️ Mic access failed:", err);
-      alert("⚠️ Please allow microphone access.");
+      toast.error("Please allow microphone access.");
     }
   };
 
@@ -74,6 +75,7 @@ export default function VoiceFeedback() {
       const model = await loadModel();
       if (!model) {
         setTranscript("❌ Whisper model not available.");
+        toast.error("Whisper model not available.");
         return;
       }
 
@@ -83,6 +85,7 @@ export default function VoiceFeedback() {
     } catch (err) {
       console.error("❌ Transcription failed:", err);
       setTranscript("❌ Could not transcribe audio.");
+      toast.error("Could not transcribe audio.");
     } finally {
       setLoading(false);
       setRecording(false);
@@ -127,6 +130,7 @@ export default function VoiceFeedback() {
     } catch (err) {
       console.error("⚠️ AI response error:", err);
       setAiReply("⚠️ Could not generate feedback.");
+      toast.error("Could not generate AI feedback.");
     }
   };
 

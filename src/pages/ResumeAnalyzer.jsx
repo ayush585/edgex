@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 
 function ResumeAnalyzer() {
   const [text, setText] = useState('');
@@ -44,12 +45,12 @@ function ResumeAnalyzer() {
           setText(parsed);
         } catch (err) {
           console.error(err);
-          alert('Could not read PDF text. Please try a .txt export of your resume.');
+          toast.error('Could not read PDF text. Please try a .txt export of your resume.');
         }
       };
       reader.readAsArrayBuffer(file);
     } else {
-      alert('Supported files: .pdf, .txt');
+      toast.error('Supported files: .pdf, .txt');
     }
   };
 
