@@ -3,10 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CareerCrack</title>
+    <title>CareerCrack</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!-- Theme initializer: read persisted preference or use OS preference to avoid flash -->
+    <script>
+      (function() {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {
+          // ignore
+        }
+      })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-DP0vNw5C.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BsPkDgcG.css">
+    <script type="module" crossorigin src="/assets/index-DOHAn1wV.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DkSum1YL.css">
   </head>
   <body>
     <div id="root"></div>

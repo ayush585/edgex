@@ -104,7 +104,6 @@ function CareerCrack({ user }) {
   const [userId, setUserId] = useState(null);
   const [history, setHistory] = useState([]);
   const [selectedChatId, setSelectedChatId] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
   const [useGroq, setUseGroq] = useState(true);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const messagesEndRef = useRef(null);
@@ -399,7 +398,6 @@ function CareerCrack({ user }) {
       doc.roundedRect(40, y - 20, pageWidth - 80, 80, 10, 10, "F");
 
       doc.setTextColor("#4A148C");
-      doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
       doc.text("User Information", 50, y);
 
@@ -408,12 +406,6 @@ function CareerCrack({ user }) {
       doc.setTextColor("#333333");
       doc.text(`Name: ${mem.name}`, 50, y + 30);
       doc.text(`Dream Career: ${mem.goal}`, 50, y + 50);
-      doc.text(`Favorite Subject: ${mem.favSubject}`, 280, y + 30);
-
-      // ----- AI SUGGESTIONS SECTION -----
-      y += 100;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
       doc.setTextColor("#5E35B1");
       doc.text("AI Suggestions", 40, y);
 
@@ -483,7 +475,7 @@ function CareerCrack({ user }) {
   };
 
   return (
-    <div className={`${darkMode ? "dark" : ""}`}>
+  <div>
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
       <div className="flex min-h-screen bg-gradient-to-br from-[#ffe0ec] via-[#f8bbd0] to-[#f3d1f4] dark:from-[#2a004f] dark:via-[#3c1361] dark:to-[#1b0032] text-gray-900 dark:text-white font-[Poppins] transition-all duration-500 ease-in-out">
         {/* Sidebar */}
@@ -492,22 +484,7 @@ function CareerCrack({ user }) {
             <h2 className="text-lg font-semibold">💬 Your Chats</h2>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-1 rounded-full hover:bg-white/20 transition-all"
-              >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-              {/* The logout button is now removed as per the request */}
-              {/* <button
-                onClick={() => {
-                  signOut(auth).then(() => setUserId(null));
-                }}
-                className="text-xs text-gray-600 dark:text-gray-300 hover:text-red-500 transition"
-                title="Logout"
-              >
-                ↩ Logout
-              </button> */}
+              {/* Local dark mode toggle removed. Global theme toggle is in the Navbar. */}
             </div>
           </div>
 

@@ -204,7 +204,7 @@ function Home({ user }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0a0a14]">
+      <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-[#0a0a14]">
         <motion.div
           className="w-10 h-10 rounded-full bg-purple-500"
           animate={{ scale: [1, 1.5, 1] }}
@@ -215,7 +215,7 @@ function Home({ user }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a14] text-white font-sans overflow-x-hidden">
+  <div className="min-h-screen bg-white text-gray-900 dark:bg-[#0a0a14] dark:text-white font-sans overflow-x-hidden">
       {/* Hero */}
       <section className="relative overflow-hidden py-24 px-6 lg:px-20 flex flex-col items-center text-center">
         <motion.div
@@ -242,10 +242,10 @@ function Home({ user }) {
           transition={{ duration: 0.7 }}
           className="z-10 max-w-4xl"
         >
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-6">
             Think better with <span className="text-purple-400">EDGEx</span>
           </h1>
-          <p className="text-lg text-gray-300 mb-8">
+          <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
             Your all-in-one AI toolkit: career mentor, mood companion, scholarship tracker & more.
           </p>
           <div className="flex justify-center items-center gap-4">
@@ -255,16 +255,16 @@ function Home({ user }) {
             >
               Start Exploring <ArrowRight size={18} />
             </button>
-            <a href="#features" className="text-gray-400 hover:text-white underline flex items-center h-full px-6 py-3 rounded-lg font-semibold">
+            <a href="#features" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white underline flex items-center h-full px-6 py-3 rounded-lg font-semibold">
               Learn More
             </a>
           </div>
         </motion.div>
       </section>
 
-      <section id="features" className="py-20 px-6 lg:px-20 bg-[#0e0e1a]">
-        <h2 className="text-3xl font-bold text-center mb-12 text-white">What can EDGEx AI do?</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto text-white">
+      <section id="features" className="py-20 px-6 lg:px-20 bg-gray-100 dark:bg-[#0e0e1a]">
+        <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">What can EDGEx AI do?</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto text-gray-900 dark:text-white">
           {features.map((feat, i) => {
             const Card = (
               <motion.div
@@ -274,7 +274,7 @@ function Home({ user }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3}}
                 viewport={{ once: true }}
-                className="bg-glass backdrop-blur-md p-6 rounded-xl border border-white/10 transition-[box-shadow,colors] duration-300 cursor-pointer flex flex-col justify-between h-full hover:shadow-2xl hover:border-white/20 hover:bg-white/5"
+                className="bg-glass backdrop-blur-md p-6 rounded-xl border border-white/10 transition-[box-shadow,colors] duration-300 cursor-pointer flex flex-col justify-between h-full hover:shadow-2xl hover:border-white/20 hover:bg-white/5 text-gray-900 dark:text-white"
               >
                 <div className="flex items-center gap-3 mb-3">
                   {feat.icon}
@@ -294,8 +294,8 @@ function Home({ user }) {
         </div>
       </section>
 
-      <section ref={countersRef} className="py-20 bg-[#0a0a14] text-center">
-        <h2 className="text-3xl font-bold text-white mb-12">
+      <section ref={countersRef} className="py-20 bg-white text-center dark:bg-[#0a0a14]">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-12">
             Our Impact So Far 🚀
         </h2>
         {!isAnimating && (
@@ -316,7 +316,7 @@ function Home({ user }) {
             {/* 🎯 Animation triggered! Counters are counting up... */}
           </div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {counters.map((item, i) => (
             <motion.div
               key={i}
@@ -324,7 +324,7 @@ function Home({ user }) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: i * 0.2 }}
               viewport={{ once: true }}
-              className="p-6 rounded-xl transition transform hover:scale-105 hover:bg-gray-800 hover:shadow-lg cursor-pointer"
+              className="p-6 rounded-xl bg-white dark:bg-gray-800 transition transform hover:scale-105 hover:shadow-lg cursor-pointer"
               title={item.label === "Students Helped"
               ? "Number of students who received guidance"
               : item.label === "Scholarships Found"
@@ -337,19 +337,19 @@ function Home({ user }) {
                   <span className="text-green-400 text-sm ml-2">→ Starting...</span>
                 )}
               </p>
-              <p className="text-gray-400 mt-2">{item.label}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">{item.label}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <section className="py-24 px-6 lg:px-20 bg-[#0e0e1a]">
-        <h2 className="text-3xl font-bold text-center mb-12 text-white">🌟 What Students Say</h2>
+      <section className="py-24 px-6 lg:px-20 bg-gray-100 dark:bg-[#0e0e1a]">
+        <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">🌟 What Students Say</h2>
         <div className="relative max-w-3xl mx-auto">
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={index}
-              className="bg-[#1a1a2e] p-8 rounded-xl border border-white/10 text-white"
+              className="bg-white p-8 rounded-xl border border-gray-200 text-gray-900 dark:bg-[#1a1a2e] dark:border-white/10 dark:text-white"
               initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: direction < 0 ? 300 : -300, opacity: 0 }}
@@ -377,7 +377,7 @@ function Home({ user }) {
         </div>
       </section>
 
-      <section className="relative z-10 bg-[#12121c] py-20 px-6 lg:px-20 overflow-hidden">
+  <section className="relative z-10 bg-gray-100 dark:bg-[#12121c] py-20 px-6 lg:px-20 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-600/30 blur-[150px] rounded-full z-0" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-indigo-500/20 blur-[120px] rounded-full z-0" />
         <div className="relative z-10 max-w-4xl mx-auto text-center">
@@ -385,7 +385,7 @@ function Home({ user }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl font-bold mb-4 text-white"
+            className="text-4xl font-bold mb-4 text-gray-900 dark:text-white"
           >
             Ready to <span className="text-purple-400">level up</span> your journey?
           </motion.h2>
@@ -393,7 +393,7 @@ function Home({ user }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-gray-400 text-lg mb-8"
+            className="text-gray-700 dark:text-gray-400 text-lg mb-8"
           >
             Start exploring EDGEx’s tools and get ahead in your academic & personal path.
           </motion.p>
@@ -412,7 +412,7 @@ function Home({ user }) {
         </div>
       </section>
 
-      <footer className="py-8  text-gray-500 text-sm px-8 lg:px-20 ">
+  <footer className="py-8  text-gray-500 dark:text-gray-400 text-sm px-8 lg:px-20 ">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center ">
             © {new Date().getFullYear()} EDGEx by Ayushman. All rights reserved.
           

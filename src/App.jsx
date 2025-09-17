@@ -18,6 +18,33 @@ const ResourceVault = React.lazy(() => import('./pages/ResourceVault'));
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState(() => {
+    try {
+      // If index.html already applied dark class on html, reflect that
+      if (typeof document !== 'undefined') {
+        return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      }
+    } catch (e) {
+      // ignore
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    try {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -38,8 +65,8 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-500">
-        {/* Pass the user object to the Navbar */}
-        <Navbar user={user} />
+        {/* Pass the user object and theme handlers to the Navbar */}
+        <Navbar user={user} theme={theme} toggleTheme={toggleTheme} />
         
         <main className="flex-1">
           <Routes>

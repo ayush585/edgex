@@ -37,7 +37,7 @@ function ChatInput({ onSend, disabled }) {
 
 
   return (
-    <div className="p-4 bg-[#0e0e1a] flex items-end gap-2 border-t border-white/10">
+    <div className="p-4 bg-gray-50 dark:bg-[#0e0e1a] flex items-end gap-2 border-t border-gray-200 dark:border-white/10">
       <textarea
         ref={textareaRef}
         value={value}
@@ -46,7 +46,7 @@ function ChatInput({ onSend, disabled }) {
         onCompositionStart={() => setIsComposing(true)}
         onCompositionEnd={() => setIsComposing(false)}
         placeholder="Paste your class notes or questions..."
-        className="flex-1 p-3 bg-[#12121c] rounded-lg resize-none text-white border border-white/10 outline-none"
+        className="flex-1 p-3 bg-white dark:bg-gray-800 rounded-lg resize-none text-gray-900 dark:text-white border border-gray-300 dark:border-white/10 outline-none"
         rows={1}
         disabled={disabled}
       />
@@ -101,8 +101,8 @@ function SmartNotes() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a14] text-white flex flex-col">
-      <header className="p-4 bg-[#12121c] text-center shadow-md text-xl font-bold text-purple-400">
+    <div className="min-h-screen flex flex-col bg-white text-gray-900 dark:bg-[#0a0a14] dark:text-gray-100">
+      <header className="p-4 bg-gray-100 dark:bg-[#12121c] text-center shadow-md text-xl font-bold text-purple-700 dark:text-purple-400">
         📝 Smart Notes AI
       </header>
 
@@ -115,7 +115,7 @@ function SmartNotes() {
             className={`max-w-xl p-4 rounded-lg ${
               msg.from === "user"
                 ? "ml-auto bg-purple-600 text-white"
-                : "bg-[#1a1a2e] text-gray-200"
+                : "bg-gray-100 text-gray-900 dark:bg-[#1a1a2e] dark:text-gray-200"
             }`}
           >
             {msg.text.split("\n").map((line, j) => (

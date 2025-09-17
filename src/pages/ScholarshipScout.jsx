@@ -128,7 +128,7 @@ Why it's a good match.
   const current = steps[step];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-200 via-orange-100 to-yellow-300 p-6 font-poppins text-gray-900">
+    <div className="min-h-screen p-6 font-poppins text-gray-900 bg-yellow-50 dark:bg-gray-900 dark:text-gray-100">
   <div className="max-w-2xl mx-auto bg-white/50 backdrop-blur-xl p-8 rounded-3xl border border-orange-200 shadow-2xl">
     <h1 className="text-4xl font-extrabold text-center bg-gradient-to-r from-yellow-700 via-orange-500 to-red-500 bg-clip-text text-transparent mb-6 drop-shadow-md">
       🎓 ScholarshipScout
@@ -136,13 +136,13 @@ Why it's a good match.
 
     {/* Form Stepper */}
     {matches.length === 0 && (
-      <div className="space-y-4 animate-fade-in">
+          <div className="space-y-4 animate-fade-in">
         <label className="block text-lg font-semibold text-orange-800">{current.label}</label>
         {current.type === "select" ? (
           <select
             value={profile[current.key]}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl border bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full p-3 rounded-xl border bg-white dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="">Select {current.label}</option>
             {current.options.map((o) => (
@@ -157,7 +157,7 @@ Why it's a good match.
             placeholder={current.placeholder || current.label}
             value={profile[current.key]}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl border bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full p-3 rounded-xl border bg-white dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
           />
         )}
 
@@ -185,19 +185,19 @@ Why it's a good match.
         {matches.map((m, i) => (
           <div
             key={i}
-            className="p-4 bg-yellow-100/80 rounded-2xl border border-orange-200 backdrop-blur-md shadow-inner hover:scale-[1.02] transition-transform duration-300"
+            className="p-4 bg-yellow-100/80 dark:bg-gray-800/70 rounded-2xl border border-orange-200 dark:border-gray-700 backdrop-blur-md shadow-inner hover:scale-[1.02] transition-transform duration-300"
           >
             <ReactMarkdown
               components={{
                 p: ({ node, ...props }) => (
-                  <p className="whitespace-pre-wrap" {...props} />
+                  <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-100" {...props} />
                 ),
                 strong: ({ node, ...props }) => (
-                  <strong className="text-orange-700 font-bold" {...props} />
+                  <strong className="text-orange-700 dark:text-orange-300 font-bold" {...props} />
                 ),
                 a: ({ node, ...props }) => (
                   <a
-                    className="text-red-600 underline hover:text-red-800 font-medium"
+                    className="text-red-600 dark:text-red-400 underline hover:text-red-800 dark:hover:text-red-200 font-medium"
                     target="_blank"
                     rel="noopener noreferrer"
                     {...props}

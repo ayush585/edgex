@@ -4,3 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	--bg: 255 255 255; /* rgb values for Tailwind-compatible utilities */
+	--text: 17 24 39;
+	--muted: 107 114 128;
+}
+
+:root.dark, .dark {
+	--bg: 17 24 39;
+	--text: 226 232 240;
+	--muted: 148 163 184;
+}
+
+/* Use CSS variables in a small set of helpers so Tailwind utilities still apply */
+body {
+	background-color: rgb(var(--bg));
+	color: rgb(var(--text));
+	transition: background-color 200ms ease, color 200ms ease;
+}
+
+.no-scroll { overflow: hidden; }
+

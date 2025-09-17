@@ -10,7 +10,7 @@ import {
 } from "firebase/auth";
 import { auth, db } from "../firebase";
 import ChatBubble from "../components/ChatBubble";
-import { PlusCircle, Moon, Sun } from "lucide-react"; // removed SendHorizonal (handled by ChatInput now)
+import { PlusCircle } from "lucide-react"; // removed SendHorizonal (handled by ChatInput now)
 import axios from "axios";
 import jsPDF from "jspdf";
 
@@ -102,7 +102,6 @@ function MoodMirror() {
   const [userId, setUserId] = useState(null);
   const [history, setHistory] = useState([]);
   const [selectedChatId, setSelectedChatId] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -119,9 +118,7 @@ function MoodMirror() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", darkMode);
-  }, [darkMode]);
+  // Theme is controlled globally via the Navbar/App. Do not manage local dark mode here.
 
   const handleSend = async (text) => {
     if (!text.trim()) return;
@@ -253,13 +250,7 @@ function MoodMirror() {
         >
           <PlusCircle size={20} />
         </button>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          title="Toggle Dark Mode"
-          className="text-indigo-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-blue-200 transition"
-        >
-          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+        {/* Local theme toggle removed - global theme toggle is in the Navbar */}
       </div>
     </div>
 

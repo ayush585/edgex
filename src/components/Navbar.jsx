@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
-import { Home, LogOut, Menu, X, Brain, MessageSquare, BookOpen, Award, Mic, FileText, UserCircle } from 'lucide-react';
+import { Home, LogOut, Menu, X, Brain, MessageSquare, BookOpen, Award, Mic, FileText, UserCircle, Sun, Moon } from 'lucide-react';
 
-const Navbar = ({ isAuthenticated, onLogout, user }) => {
+const Navbar = ({ isAuthenticated, onLogout, user, theme, toggleTheme }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -117,7 +117,24 @@ const Navbar = ({ isAuthenticated, onLogout, user }) => {
     };
   }, [isProfileMenuOpen]);
 
-  const renderAuthButton = () => {
+  const renderThemeToggle = () => {
+    const isDark = theme === 'dark';
+    const toggle = toggleTheme ? toggleTheme : () => {
+      document.documentElement.classList.toggle('dark');
+      try {
+        const nowDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('theme', nowDark ? 'dark' : 'light');
+      } catch (e) {}
+    };
+
+    return (
+      <button onClick={toggle} className="p-2 rounded-md text-purple-100 hover:text-white hover:bg-purple-700/30 transition-colors duration-200" title="Toggle theme">
+        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      </button>
+    );
+  };
+
+  const renderAuthButton = () => {
     if (user) {
       return (
         <div className="relative profile-menu-container">
@@ -155,7 +172,7 @@ const Navbar = ({ isAuthenticated, onLogout, user }) => {
           className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors duration-200"
           title="Sign in to EDGEx"
         >
-          <UserCircle className="h-4 w-4" />
+          <UserCircle className="h-4 w-5" />
           <span className="hidden xl:block">Sign In</span>
         </Link>
       );
@@ -166,7 +183,7 @@ const Navbar = ({ isAuthenticated, onLogout, user }) => {
     <>
       <nav className="bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 border-b border-purple-700/30 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-16 gap-6">
             
             {/* Logo and Brand Name */}
             <Link to="/" className="flex items-center space-x-2">
@@ -208,19 +225,27 @@ const Navbar = ({ isAuthenticated, onLogout, user }) => {
             </div>
 
             {/* Auth Button and Mobile Menu Toggle */}
-            <div className="flex items-center space-x-3">
-              <div className="hidden lg:block">
-                {renderAuthButton()}
-              </div>
+            <div className="flex items-center gap-4">
+              {/* Desktop theme toggle and auth button */}
+              <div className="hidden lg:flex items-center gap-2">
+                {renderThemeToggle()}
+                {renderAuthButton()}
+              </div>
 
-              <button
-                onClick={toggleMobileMenu}
-                className="lg:hidden p-2 rounded-lg text-purple-100 hover:text-white hover:bg-purple-700/50 transition-colors duration-200"
-                aria-label="Toggle navigation menu"
-              >
-                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
+              {/* Mobile theme toggle */}
+              <div className="flex items-center lg:hidden">
+                {renderThemeToggle()}
+              </div>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={toggleMobileMenu}
+                className="lg:hidden p-2 rounded-lg text-purple-100 hover:text-white hover:bg-purple-700/50 transition-colors duration-200"
+                aria-label="Toggle navigation menu"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
         </div>
 
