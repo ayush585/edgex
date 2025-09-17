@@ -20,6 +20,7 @@ import {
   ArrowLeft,
   Key,
 } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const LoginModal = ({ onClose }) => {
   const [isSignup, setIsSignup] = useState(false);
@@ -36,9 +37,10 @@ const LoginModal = ({ onClose }) => {
     newPassword: '',
     confirmNewPassword: '',
   });
+
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const modalRef = useRef();
 
@@ -67,53 +69,63 @@ const LoginModal = ({ onClose }) => {
 
   const validateForm = () => {
     const { fullName, email, password, confirmPassword } = formData;
-    
+
     if (showForgotPassword) {
-      if (!email || !/\S+@\S+\.\S+/.test(email))
-        return 'Valid email is required.';
-      return null;
+      if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        toast.error('Valid email is required.');
+        return false;
+      }
+      return true;
     }
-    
+
     if (isSignup) {
-      if (!fullName.trim()) return 'Full Name is required.';
-      if (!/^[A-Za-z\s]+$/.test(fullName))
-        return 'Full Name can only contain letters and spaces.';
-      if (password !== confirmPassword) return 'Passwords do not match.';
+      if (!fullName.trim()) {
+        toast.error('Full Name is required.');
+        return false;
+      }
+      if (!/^[A-Za-z\s]+$/.test(fullName)) {
+        toast.error('Full Name can only contain letters and spaces.');
+        return false;
+      }
+      if (password !== confirmPassword) {
+        toast.error('Passwords do not match.');
+        return false;
+      }
     }
-    if (!email || !/\S+@\S+\.\S+/.test(email))
-      return 'Valid email is required.';
-    if (!password || password.length < 6)
-      return 'Password must be at least 6 characters.';
-    return null;
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      toast.error('Valid email is required.');
+      return false;
+    }
+    if (!password || password.length < 6) {
+      toast.error('Password must be at least 6 characters.');
+      return false;
+    }
+    return true;
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    setError('');
-    setSuccess('');
 
     try {
       // Send password reset email
       await sendPasswordResetEmail(auth, formData.email);
-      setSuccess('✅ Password reset email sent! Check your inbox and follow the instructions to reset your password.');
+      toast.success('Password reset email sent! Check your inbox and follow the instructions to reset your password.');
       setTimeout(() => {
         setShowForgotPassword(false);
         resetForm();
       }, 3000);
     } catch (err) {
       if (err.code === 'auth/user-not-found') {
-        setError('❌ No account found with this email address.');
+        toast.error('No account found with this email address.');
       } else if (err.code === 'auth/invalid-email') {
-        setError('❌ Invalid email address.');
+        toast.error('Invalid email address.');
       } else {
-        setError('❌ ' + err.message);
+        toast.error(err.message);
       }
     } finally {
       setIsLoading(false);
@@ -122,15 +134,11 @@ const LoginModal = ({ onClose }) => {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    setError('');
-    setSuccess('');
 
     try {
       let res;
@@ -145,26 +153,28 @@ const LoginModal = ({ onClose }) => {
           email: formData.email,
           createdAt: serverTimestamp(),
         });
+        toast.success('Account created successfully!');
       } else {
         res = await signInWithEmailAndPassword(
           auth,
           formData.email,
           formData.password
         );
+        toast.success('Signed in successfully!');
       }
       navigate('/');
     } catch (err) {
       const code = err.code;
       if (code === 'auth/email-already-in-use') {
-        setError('⚠️ Email already registered. Try logging in.');
+        toast.error('Email already registered. Try logging in.');
       } else if (code === 'auth/invalid-email') {
-        setError('⚠️ Invalid email format.');
+        toast.error('Invalid email format.');
       } else if (code === 'auth/weak-password') {
-        setError('⚠️ Password too weak (min 6 characters).');
+        toast.error('Password too weak (min 6 characters).');
       } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password') {
-        setError('❌ Wrong email or password.');
+        toast.error('Wrong email or password.');
       } else {
-        setError('❌ ' + err.message);
+        toast.error(err.message);
       }
     } finally {
       setIsLoading(false);
@@ -172,16 +182,14 @@ const LoginModal = ({ onClose }) => {
   };
 
   const resetForm = () => {
-    setFormData({ 
-      fullName: '', 
-      email: '', 
-      password: '', 
+    setFormData({
+      fullName: '',
+      email: '',
+      password: '',
       confirmPassword: '',
       newPassword: '',
       confirmNewPassword: ''
     });
-    setError('');
-    setSuccess('');
     setShowPassword(false);
     setShowConfirmPassword(false);
     setShowNewPassword(false);
@@ -225,32 +233,6 @@ const LoginModal = ({ onClose }) => {
                 : 'Sign in to continue your learning journey'}
             </p>
           </div>
-          {error && (
-            <div
-              className="px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2 border"
-              style={{
-                backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                borderColor: 'rgba(220, 38, 38, 0.3)',
-                color: '#ef4444',
-              }}
-            >
-              <span style={{ color: '#dc2626' }}>⚠️</span>
-              <span style={{ color: '#ef4444' }}>{error}</span>
-            </div>
-          )}
-          {success && (
-            <div
-              className="px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2 border"
-              style={{
-                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                borderColor: 'rgba(34, 197, 94, 0.3)',
-                color: '#22c55e',
-              }}
-            >
-              <span style={{ color: '#16a34a' }}>✅</span>
-              <span style={{ color: '#22c55e' }}>{success}</span>
-            </div>
-          )}
           <form onSubmit={showForgotPassword ? handleForgotPassword : handleAuth} className="space-y-4">
             {showForgotPassword ? (
               <>

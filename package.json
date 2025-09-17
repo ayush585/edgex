@@ -22,6 +22,7 @@
     "react-parallax-tilt": "^1.7.300",
     "react-router-dom": "^6.23.0",
     "react-simple-typewriter": "^5.0.1",
+    "react-toastify": "^11.0.5",
     "wavesurfer": "^1.3.4",
     "wavesurfer.js": "^7.9.9"
   },
