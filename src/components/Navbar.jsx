@@ -7,6 +7,7 @@ import { Home, LogOut, Menu, X, Brain, MessageSquare, BookOpen, Award, Mic, File
 const Navbar = ({ isAuthenticated, onLogout, user, theme, toggleTheme }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -82,6 +83,7 @@ const Navbar = ({ isAuthenticated, onLogout, user, theme, toggleTheme }) => {
       navigate('/');
       setIsProfileMenuOpen(false);
       setIsMobileMenuOpen(false);
+      setShowLogoutConfirm(false);
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -155,7 +157,7 @@ const Navbar = ({ isAuthenticated, onLogout, user, theme, toggleTheme }) => {
                 <p className="text-xs text-gray-500">Signed in</p>
               </div>
               <button 
-                onClick={handleLogout}
+                onClick={() => setShowLogoutConfirm(true)}
                 className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
               >
                 <LogOut className="h-4 w-4 mr-2" />
@@ -288,7 +290,7 @@ const Navbar = ({ isAuthenticated, onLogout, user, theme, toggleTheme }) => {
                     <p className="text-xs text-purple-300">Signed in</p>
                   </div>
                   <button
-                    onClick={handleLogout}
+                    onClick={() => setShowLogoutConfirm(true)}
                     className="w-full flex items-center space-x-3 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
                   >
                     <LogOut className="h-5 w-5" />
@@ -308,6 +310,41 @@ const Navbar = ({ isAuthenticated, onLogout, user, theme, toggleTheme }) => {
             </div>
           </div>
         </div>
+{showLogoutConfirm && (
+  <div 
+    className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
+    onClick={() => setShowLogoutConfirm(false)} // close when clicking overlay
+  >
+    <div 
+      className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 border border-purple-600/50 p-6 rounded-2xl shadow-2xl w-96 animate-fadeIn"
+      onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
+    >
+      {/* Title */}
+      <h2 className="text-xl font-bold text-white mb-2">
+        Log out
+      </h2>
+      <p className="text-sm text-purple-200 mb-6">
+        Are you sure you want to log out of EDGEx?
+      </p>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowLogoutConfirm(false)}
+          className="px-4 py-2 rounded-lg bg-purple-700/40 text-purple-200 hover:bg-purple-600 hover:text-white transition-all duration-200"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-all duration-200 shadow-md"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </nav>
     </>
   );
