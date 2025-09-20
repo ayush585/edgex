@@ -23,5 +23,8 @@ body {
 	transition: background-color 200ms ease, color 200ms ease;
 }
 
-.no-scroll { overflow: hidden; }
-
+/* Prevent background scrolling when mobile menu is open */
+.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
