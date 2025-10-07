@@ -871,13 +871,13 @@ const ResourceVault = () => {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="flex items-center gap-2 bg-white/60 dark:bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 hover:bg-white/80 dark:hover:bg-white/20 transition-all"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span className="font-medium">Sign In</span>
-                </button>
+                // <button
+                //   onClick={() => setShowLoginModal(true)}
+                //   // className="flex items-center gap-2 bg-white/60 dark:bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 hover:bg-white/80 dark:hover:bg-white/20 transition-all"
+                // >
+                //   {/* <LogIn className="w-4 h-4" /> */}
+                //   {/* <span className="font-medium">Sign In</span> */}
+                // </button>
               )}
             </div>
           </div>
