@@ -293,7 +293,48 @@ function Home({ user }) {
           })}
         </div>
       </section>
-
+      
+      {/* CTA Section */}
+      <section className="bg-gradient-to-r from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900 dark:via-indigo-900 dark:to-blue-900 py-16 mt-12 rounded-lg shadow-lg transition-all duration-500">
+        <div className="max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-12 px-6">
+         {/*Video Tutorial for Beginners */}
+        <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+          <video
+          src="/tutorial.mp4"
+          alt="MoodMirror Tutorial"
+          className="w-full max-w-sm sm:max-w-md md:max-w-full lg:max-w-lg xl:max-w-xl rounded-xl shadow-2xl border-4 border-white/50 dark:border-gray-800 transition-all duration-500"
+          autoPlay
+          loop
+          muted
+          playsInline
+          />
+        </div>
+          {/*Text Content */}
+          <div className="w-full md:w-1/2 text-center md:text-left">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-purple-700 dark:text-purple-300 mb-5 leading-tight">
+              Get Your AI Mentor Today!
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-8 text-xl">
+              Explore MoodMirror, CareerCrack, and Scholarship Scour - personalized guidance powered by AI, designed for Gen Z.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+              <Link
+              to="/moodmirror"
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-md transition-all"
+              >
+                Try MoodMirror Now
+              </Link>
+              <Link
+              to="/careercrack"
+              className="px-6 py-3 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-semibold rounded-lg shadow-md transition-all"
+              >
+                Explore CareerCrack
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+      </section>
       <section ref={countersRef} className="py-20 bg-white text-center dark:bg-[#0a0a14]">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-12">
             Our Impact So Far 🚀

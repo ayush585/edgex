@@ -267,9 +267,9 @@ function CareerCrack({ user }) {
 
       if (useGroq) {
         const res = await axios.post(
-          "https://edgex-backend.onrender.com/groq",
+          "http://127.0.0.1:5000/groq",
           {
-            model: "llama3-8b-8192",
+            model: "llama-3.1-8b-instant",
             messages: [
               {
                 role: "system",
