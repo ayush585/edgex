@@ -275,12 +275,13 @@ const LoginModal = ({ onClose }) => {
                 : 'Sign in to continue your learning journey'}
             </p>
           </div>
-          <form onSubmit={showForgotPassword ? handleForgotPassword : handleAuth} className="space-y-4">
-            {showForgotPassword ? (
+          <form onSubmit={(e)=>e.preventDefault()} className="space-y-4">
+           
+           {/* {showForgotPassword ? (
               <>
-                {/* Forgot Password Form */}
+
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Mail cl assName="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="email"
                     name="email"
@@ -308,7 +309,7 @@ const LoginModal = ({ onClose }) => {
               </>
             ) : (
               <>
-                {/* Regular Login/Signup Form */}
+               
                 {isSignup && (
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -400,7 +401,7 @@ const LoginModal = ({ onClose }) => {
                   )}
                 </button>
               </>
-            )}
+            )}  */}
           </form>
           {/* Google Sign-In */}
           <div className="text-center mt-4">
