@@ -6,6 +6,7 @@ import { auth } from './firebase';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import CareerCrack from './pages/CareerCrack';
 import MoodMirror from './pages/MoodMirror';
 import ScholarshipScout from './pages/ScholarshipScout';
@@ -94,6 +95,7 @@ function App() {
         </main>
 
         <ScrollToTopButton />
+        <Footer />
         <ToastContainer />
       </div>
     </Router>
