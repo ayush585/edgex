@@ -453,23 +453,7 @@ function Home({ user }) {
         </div>
       </section>
 
-  <footer className="py-8  text-gray-500 dark:text-gray-400 text-sm px-8 lg:px-20 ">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center ">
-            © {new Date().getFullYear()} EDGEx by Ayushman. All rights reserved.
-          
-            <div className="flex  space-x-4 text-purple-400 text-3xl ">
-             <a href="https://github.com/ayush585/edgex" target="_blank" 
-                className="hover:text-purple-200 transition"> 
-                <FaGithub/>
-              </a>
 
-              <a href="https://www.linkedin.com/in/ayushman-mukherjee-437a49314/" target="_blank" 
-                     className="hover:text-purple-200 transition"> 
-                <FaLinkedin/>
-              </a>
-            </div>
-          </div>
-      </footer>
     </div>
   );
 }
