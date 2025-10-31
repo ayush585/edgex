@@ -32,13 +32,16 @@ export default function ChatInput({ onSend, disabled }) {
         rows={1}
         placeholder="Type a message…"
         aria-label="Message"
-        className="flex-1 resize-none rounded-xl border p-3 outline-none"
+        className={
+          "flex-1 resize-none rounded-xl border p-3 outline-none bg-white text-gray-900 placeholder-gray-500 " +
+          "dark:bg-transparent dark:text-gray-100 dark:placeholder-gray-400 dark:border-white/20"
+        }
       />
       <button
         type="button"
         onClick={handleSend}
         disabled={disabled || !value.trim()}
-        className="rounded-xl px-4 py-2 border"
+        className="rounded-xl px-4 py-2 border bg-white text-gray-800 dark:bg-white/5 dark:text-gray-100 dark:border-white/20"
         aria-label="Send message"
       >
         Send
