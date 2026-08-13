@@ -60,8 +60,24 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-4 border-purple-200 dark:border-purple-900/50"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-purple-600 dark:border-purple-400 border-t-transparent animate-spin"></div>
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+            Loading
+          </span>
+          <span className="flex gap-1.5">
+            <span className="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full animate-bounce [animation-delay:0ms]"></span>
+            <span className="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full animate-bounce [animation-delay:150ms]"></span>
+            <span className="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full animate-bounce [animation-delay:300ms]"></span>
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400 animate-pulse mt-1">
+          Please wait while we prepare your experience...
+        </p>
       </div>
     );
   }
